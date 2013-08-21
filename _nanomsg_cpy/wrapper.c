@@ -1,7 +1,11 @@
 #include <nanomsg/nn.h>
 #include <Python.h>
 
-// This might be a good idea or not
+#if PY_MAJOR_VERSION >= 3
+#define IS_PY3K
+#endif
+
+/* This might be a good idea or not */
 #ifndef NO_CONCURRENY
 #define CONCURRENCY_POINT_BEGIN Py_BEGIN_ALLOW_THREADS
 #define CONCURRENCY_POINT_END Py_END_ALLOW_THREADS
@@ -9,6 +13,8 @@
 #define CONCURRENCY_POINT_BEGIN
 #define CONCURRENCY_POINT_END
 #endif
+
+const static char MODULE_NAME[] = "_nanomsg";
 
 static PyObject *
 _nanomsg_nn_errno(PyObject *self, PyObject *args)
@@ -202,13 +208,27 @@ static PyMethodDef module_methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
+
+#ifndef IS_PY3K
 PyMODINIT_FUNC
 init_nanomsg(void)
 {
-    PyObject *m;
-
-    m = Py_InitModule("_nanomsg", module_methods);
-    if (m == NULL)
-        return;
+    Py_InitModule(MODULE_NAME, module_methods);
 }
+#else
+/* TODO: remove the following comment */
+/* Insert minor rant about pointless breaking changes */
+static struct PyModuleDef _nanomsg_module = {
+   PyModuleDef_HEAD_INIT,
+   MODULE_NAME,
+   NULL,
+   -1,
+   module_methods
+};
 
+PyMODINIT_FUNC
+PyInit__nanomsg(void)
+{
+    return PyModule_Create(&_nanomsg_module);
+}
+#endif
