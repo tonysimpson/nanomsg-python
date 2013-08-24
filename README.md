@@ -9,7 +9,7 @@ Build and install nanomsg from source: https://github.com/250bpm/nanomsg
 
 ## Installation
 
-NOTE: maybe need set export LD_LIBRARY_PATH=/usr/local/lib in your environment.
+NOTE: maybe need set ```export LD_LIBRARY_PATH=/usr/local/lib``` in your environment.
 
     git clone git@github.com:tonysimpson/nanomsg-python.git
     cd nanomsg-python
