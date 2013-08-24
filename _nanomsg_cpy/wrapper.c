@@ -129,12 +129,12 @@ static PyObject *
 _nanomsg_nn_shutdown(PyObject *self, PyObject *args)
 {
     int nn_result;
-    int domain, protocol;
-    if (!PyArg_ParseTuple(args, "ii", &domain, &protocol))
+    int socket, how;
+    if (!PyArg_ParseTuple(args, "ii",&socket, &how))
         return NULL;
 
     CONCURRENCY_POINT_BEGIN
-    nn_result = nn_socket(domain, protocol);
+    nn_result = nn_shutdown(socket, how);
     CONCURRENCY_POINT_END
     return Py_BuildValue("i", nn_result);
 }
