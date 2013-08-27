@@ -1,10 +1,16 @@
-from setuptools import setup, Extension
+try:
+    from setuptools import setup, Extension
+except ImportError:
+    from distutils.core import setup, Extension
+
 
 module1 = Extension('_nanomsg',
-                    sources = ['_nanomsg_cpy/wrapper.c'],
-                    libraries=['nanomsg'])
+                    sources=['_nanomsg_cpy/wrapper.c'],
+                    libraries=['nanomsg'],
+                    )
 
-setup (name = 'nanomsg',
-       version = '0.1a1',
-       packages=['nanomsg'],
-       ext_modules = [module1])
+
+setup(name='nanomsg',
+      version='0.1a1',
+      packages=['nanomsg'],
+      ext_modules=[module1])
