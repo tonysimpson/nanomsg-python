@@ -16,23 +16,23 @@ def test_pair():
     rc = nanomsg.nn_connect(sc, SOCKET_ADDRESS)
     assert(rc >= 0)
 
-    rc = nanomsg.nn_send_string(sc, "ABC", 0)
+    rc = nanomsg.nn_send(sc, b"ABC", 0)
     assert(rc >= 0)
     assert(rc == 3)
 
-    rc, buf = nanomsg.nn_recv_string(sb, 0)
+    rc, buf = nanomsg.nn_recv(sb, 0)
     assert(rc >= 0)
     assert(rc == 3)
-    assert(buf == "ABC")
+    assert(bytes(buf) == b"ABC")
 
-    rc = nanomsg.nn_send_string(sb, "DEF", 0)
+    rc = nanomsg.nn_send(sb, b"DEF", 0)
     assert(rc >= 0)
     assert(rc == 3)
 
-    rc, buf = nanomsg.nn_recv_string(sc, 0)
+    rc, buf = nanomsg.nn_recv(sc, 0)
     assert(rc >= 0)
     assert(rc == 3)
-    assert(buf == "DEF")
+    assert(bytes(buf) == b"DEF")
 
     rc = nanomsg.nn_close(sc)
     assert(rc == 0)
