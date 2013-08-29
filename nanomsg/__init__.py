@@ -23,7 +23,7 @@ class NanoMsgError(Exception):
 class NanoMsgAPIError(NanoMsgError):
     """Exception for all errors reported by the C API.
 
-    msg and errno are from nanomsg c library.
+    msg and errno are from nanomsg C library.
 
     """
     __slots__ = ('msg', 'errno')
@@ -50,7 +50,7 @@ class Device(object):
         self._s1 = socket1._s
         self._s2 = -1 if socket2 is None else socket2._s
 
-    def run(self):
+    def start(self):
         """Run the device in the current thread.
 
         This will not return until the device stops due to error or
@@ -65,6 +65,29 @@ def terminate_all():
 
 
 class Socket(object):
+    """Class wrapping nanomsg socket.
+
+    protocol should be a nanomsg protocol constant e.g. nanomsg.PAIR
+
+    This class supports being used as a context manager which should gaurentee
+    it is closed.
+
+    e.g.:
+        import time
+        from nanomsg import PUB, Socket
+
+        with Socket(PUB) as pub_socket:
+            pub_socket.bind('tcp://127.0.0.1:49234')
+            for i in range(100):
+                pub_socket.send(b'hello all')
+                time.sleep(0.5)
+        #pub_socket is closed
+
+    Socket.bind and Socket.connect return subclass of Endpoint which allow
+    you to shutdown selected endpoints.
+
+    """
+
     class Endpoint(object):
         def __init__(self, socket, endpoint_id, address):
             self._endpoint_id = endpoint_id
@@ -115,10 +138,19 @@ class Socket(object):
         return ep
 
     def close(self):
-        if self._s >= 0:
+        if self.is_open():
             s = self._s
             self._s = -1
             _nn_check_positive_rtn(nn_close(s))
+
+    def is_open(self):
+        """Returns true if the socket has a valid socket id.
+
+        If the underlying socket is closed by some other means than
+        Socket.close this method may return True when the socket is actually
+        closed.
+        """
+        return self._s >= 0
 
     def recv(self, buf=None, flags=0):
         if buf is None:
@@ -175,7 +207,7 @@ class Socket(object):
 
     def __del__(self):
         try:
-            if self._s >= 0:
+            if self.is_open():
                 warnings.warn("Maybe %r was not closed before it was GC'd" %
                               (self,))
                 self.close()
