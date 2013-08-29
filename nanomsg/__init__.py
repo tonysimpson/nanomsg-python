@@ -1,54 +1,183 @@
-from platform import python_implementation
-if python_implementation() == 'PyPy':
-    raise ImportError('PyPy not supported yet')
-else:
-    from _nanomsg import *
+import struct
+from nanomsg_wrappers import load_wrapper as _load_wrapper
+import warnings
 
-#Constants ripped from c headers
+_wrapper = _load_wrapper()
 
-NN_MSG = -1 # does this work?
-AF_SP = 1
-AF_SP_RAW = 2
-NN_PROTO_BUS = 7
-NN_BUS = (NN_PROTO_BUS * 16 + 0)
-NN_INPROC = -1
-NN_IPC = -2
-NN_VERSION_CURRENT = 0
-NN_VERSION_REVISION = 0
-NN_VERSION_AGE = 0
-NN_SOCKADDR_MAX = 128
-NN_SOL_SOCKET = 0
-NN_LINGER = 1
-NN_SNDBUF = 2
-NN_RCVBUF = 3
-NN_SNDTIMEO = 4
-NN_RCVTIMEO = 5
-NN_RECONNECT_IVL = 6
-NN_RECONNECT_IVL_MAX = 7
-NN_SNDPRIO = 8
-NN_SNDFD = 10
-NN_RCVFD = 11
-NN_DOMAIN = 12
-NN_PROTOCOL = 13
-NN_IPV4ONLY = 14
-NN_DONTWAIT = 1
-NN_PROTO_PAIR = 1
-NN_PAIR = (NN_PROTO_PAIR * 16 + 0)
-NN_PROTO_PIPELINE = 5
-NN_PUSH = (NN_PROTO_PIPELINE * 16 + 0)
-NN_PULL = (NN_PROTO_PIPELINE * 16 + 1)
-NN_PROTO_PUBSUB = 2
-NN_PUB = (NN_PROTO_PUBSUB * 16 + 0)
-NN_SUB = (NN_PROTO_PUBSUB * 16 + 1)
-NN_SUB_SUBSCRIBE = 1
-NN_SUB_UNSUBSCRIBE = 2
-NN_PROTO_REQREP = 3
-NN_REQ = (NN_PROTO_REQREP * 16 + 0)
-NN_REP = (NN_PROTO_REQREP * 16 + 1)
-NN_REQ_RESEND_IVL = 1
-NN_PROTO_SURVEY = 6
-NN_SURVEYOR = (NN_PROTO_SURVEY * 16 + 0)
-NN_RESPONDENT = (NN_PROTO_SURVEY * 16 + 1)
-NN_SURVEYOR_DEADLINE = 1
-NN_TCP = -3
-NN_TCP_NODELAY = 1
+#Import wrapper api into globals
+globals().update(dict((k, v) for k, v in _wrapper.__dict__.iteritems()
+                      if not k.startswith('_')))
+for name, value in nn_symbols():
+    if name.startswith('NN_'):
+        name = name[3:]
+    globals()[name] = value
+
+
+class NanoMsgError(Exception):
+    """Base Exception for all errors in the nanomsg python package
+
+    """
+    pass
+
+
+class NanoMsgAPIError(NanoMsgError):
+    """Exception for all errors reported by the C API.
+
+    msg and errno are from nanomsg c library.
+
+    """
+    __slots__ = ('msg', 'errno')
+
+    def __init__(self):
+        errno = nn_errno()
+        msg = nn_strerror(errno)
+        NanoMsgError.__init__(self, msg)
+        self.errno, self.msg = errno, msg
+
+
+def _nn_check_positive_rtn(rtn):
+    if rtn < 0:
+        raise NanoMsgAPIError()
+    return rtn
+
+
+class Device(object):
+    """Create a nanomsg device to relay messages between sockets.
+
+    If only one socket is supplied the device loops messages on that socket.
+    """
+    def __init__(self, socket1, socket2=None):
+        self._s1 = socket1._s
+        self._s2 = -1 if socket2 is None else socket2._s
+
+    def run(self):
+        """Run the device in the current thread.
+
+        This will not return until the device stops due to error or
+        termination.
+        """
+        _nn_check_positive_rtn(nn_device(self._s1, self._s2))
+
+
+def terminate_all():
+    """Close all sockets and devices"""
+    nn_term()
+
+
+class Socket(object):
+    class Endpoint(object):
+        def __init__(self, socket, endpoint_id, address):
+            self._endpoint_id = endpoint_id
+            self._socket = socket
+            self._address = address
+
+        @property
+        def address(self):
+            return self._address
+
+        def shutdown(self):
+            self._socket._endpoints.remove(self)
+            _nn_check_positive_rtn(nn_shutdown(self._socket._s,
+                                               self._endpoint_id))
+
+        def __repr__(self):
+            return u'<%s socket %r, id %r, addresss %r>' % (
+                self.__class__.__name__,
+                self._socket,
+                self._endpoint_id,
+                self._address
+            )
+
+    class BindEndpoint(Endpoint):
+        pass
+
+    class ConnectEndpoint(Endpoint):
+        pass
+
+    def __init__(self, protocol, domain=AF_SP):
+        self._s = _nn_check_positive_rtn(nn_socket(domain, protocol))
+        self._endpoints = []
+
+    @property
+    def endpoints(self):
+        return list(self._endpoints)
+
+    def bind(self, address):
+        endpoint_id = _nn_check_positive_rtn(nn_bind(self._s, address))
+        ep = Socket.BindEndpoint(self, endpoint_id, address)
+        self._endpoints.append(ep)
+        return ep
+
+    def connect(self, address):
+        endpoint_id = _nn_check_positive_rtn(nn_connect(self._s, address))
+        ep = Socket.ConnectEndpoint(self, endpoint_id, address)
+        self._endpoints.append(ep)
+        return ep
+
+    def close(self):
+        if self._s >= 0:
+            s = self._s
+            self._s = -1
+            _nn_check_positive_rtn(nn_close(s))
+
+    def recv(self, buf=None, flags=0):
+        if buf is None:
+            rtn, out_buf = nn_recv(self._s, flags)
+        else:
+            rtn, out_buf = nn_recv(self._s, buf, flags)
+        _nn_check_positive_rtn(rtn)
+        return bytes(buffer(out_buf, 0, rtn))
+
+    def set_string_option(self, option, value, level=SOL_SOCKET):
+        _nn_check_positive_rtn(nn_setsockopt(self._s, level, option, value))
+
+    def set_int_option(self, option, value, level=SOL_SOCKET):
+        _nn_check_positive_rtn(
+            nn_setsockopt(self._s, level, option, struct.pack('i', value))
+        )
+
+    def get_int_option(self, option, level=SOL_SOCKET):
+        size = struct.calcsize('i')
+        buf = bytearray(size)
+        rtn = _nn_check_positive_rtn(
+            nn_getsockopt(self._s, level, option, buf)
+        )
+        if rtn != size:
+            raise NanoMsgError(('Returned option size (%r) should be the same'
+                                ' as size of int (%r)') % (rtn, size))
+        return struct.unpack_from('i', buf)[0]
+
+    def get_string_option(self, option, level=SOL_SOCKET, max_len=16*1024):
+        buf = bytearray(max_len)
+        rtn = _nn_check_positive_rtn(
+            nn_getsockopt(self._s, level, option, buf)
+        )
+        return str(buf[:rtn])
+
+    def send(self, msg, flags=0):
+        _nn_check_positive_rtn(nn_send(self._s, msg, flags))
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        self.close()
+
+    def __repr__(self):
+        return u'<%s id %r, connected to %r, bond to %r>' % (
+            self.__class__.__name__,
+            self._s,
+            [i.address for i in self.endpoints if type(i) is
+             Socket.BindEndpoint],
+            [i.address for i in self.endpoints if type(i) is
+             Socket.ConnectEndpoint],
+        )
+
+    def __del__(self):
+        try:
+            if self._s >= 0:
+                warnings.warn("Maybe %r was not closed before it was GC'd" %
+                              (self,))
+                self.close()
+        except NanoMsgError:
+            pass

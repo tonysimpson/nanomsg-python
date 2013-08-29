@@ -24,7 +24,7 @@
 #define Py_TPFLAGS_HAVE_NEWBUFFER 0L
 #endif
 
-const static char MODULE_NAME[] = "_nanomsg";
+const static char MODULE_NAME[] = "_nanomsg_cpy";
 
 
 typedef struct {
@@ -112,7 +112,7 @@ static PyBufferProcs Message_bufferproces = {
 static PyObject *
 Message_repr(Message * obj)
 {
-    return PyUnicode_FromFormat("<_nanomsg.Message size %zu, address %p >",
+    return PyUnicode_FromFormat("<_nanomsg_cpy.Message size %zu, address %p >",
                                obj->size, obj->msg);
 }
 
@@ -125,7 +125,7 @@ Message_str(Message * obj)
 
 static PyTypeObject MessageType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    "_nanomsg.Message",          /*tp_name*/
+    "_nanomsg_cpy.Message",          /*tp_name*/
     sizeof(Message),             /*tp_basicsize*/
     0,                           /*tp_itemsize*/
     (destructor)Message_dealloc, /*tp_dealloc*/
@@ -166,13 +166,13 @@ static PyTypeObject MessageType = {
 };
 
 static PyObject *
-_nanomsg_nn_errno(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_errno(PyObject *self, PyObject *args)
 {
     return Py_BuildValue("i", nn_errno());
 }
 
 static PyObject *
-_nanomsg_nn_strerror(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_strerror(PyObject *self, PyObject *args)
 {
     int error_number;
     if (!PyArg_ParseTuple(args, "i", &error_number))
@@ -181,7 +181,7 @@ _nanomsg_nn_strerror(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_nanomsg_nn_socket(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_socket(PyObject *self, PyObject *args)
 {
     int domain, protocol;
     if (!PyArg_ParseTuple(args, "ii", &domain, &protocol))
@@ -190,7 +190,7 @@ _nanomsg_nn_socket(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_nanomsg_nn_close(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_close(PyObject *self, PyObject *args)
 {
     int nn_result, socket;
 
@@ -204,7 +204,7 @@ _nanomsg_nn_close(PyObject *self, PyObject *args)
     return Py_BuildValue("i", nn_result);
 }
 
-static const char _nanomsg_nn_setsockopt__doc__[] =
+static const char _nanomsg_cpy_nn_setsockopt__doc__[] =
 "set a socket option\n"
 "\n"
 "socket - socket number\n"
@@ -214,7 +214,7 @@ static const char _nanomsg_nn_setsockopt__doc__[] =
 "returns - 0 on success or < 0 on error\n\n";
 
 static PyObject *
-_nanomsg_nn_setsockopt(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_setsockopt(PyObject *self, PyObject *args)
 {
     int nn_result, socket, level, option;
     Py_buffer value;
@@ -228,7 +228,7 @@ _nanomsg_nn_setsockopt(PyObject *self, PyObject *args)
 }
 
 
-static const char _nanomsg_nn_getsockopt__doc__[] =
+static const char _nanomsg_cpy_nn_getsockopt__doc__[] =
 "retrieve a socket option\n"
 "\n"
 "socket - socket number\n"
@@ -239,7 +239,7 @@ static const char _nanomsg_nn_getsockopt__doc__[] =
 "returns - number of bytes copied or on error nunber < 0\n\n";
 
 static PyObject *
-_nanomsg_nn_getsockopt(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_getsockopt(PyObject *self, PyObject *args)
 {
     int nn_result, socket, level, option;
     Py_buffer value;
@@ -253,7 +253,7 @@ _nanomsg_nn_getsockopt(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_nanomsg_nn_bind(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_bind(PyObject *self, PyObject *args)
 {
     int socket;
     const char *address;
@@ -263,7 +263,7 @@ _nanomsg_nn_bind(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_nanomsg_nn_connect(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_connect(PyObject *self, PyObject *args)
 {
     int socket;
     const char *address;
@@ -273,7 +273,7 @@ _nanomsg_nn_connect(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_nanomsg_nn_shutdown(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_shutdown(PyObject *self, PyObject *args)
 {
     int nn_result, socket, endpoint;
 
@@ -287,7 +287,7 @@ _nanomsg_nn_shutdown(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_nanomsg_nn_send(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_send(PyObject *self, PyObject *args)
 {
     int nn_result, socket, flags;
     Py_buffer buffer;
@@ -303,7 +303,7 @@ _nanomsg_nn_send(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_nanomsg_nn_recv(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_recv(PyObject *self, PyObject *args)
 {
     int nn_result, socket, flags;
     Py_buffer buffer;
@@ -338,7 +338,7 @@ _nanomsg_nn_recv(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_nanomsg_nn_device(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_device(PyObject *self, PyObject *args)
 {
     int socket_1, socket_2;
     if (!PyArg_ParseTuple(args, "ii", &socket_1, &socket_2))
@@ -347,7 +347,7 @@ _nanomsg_nn_device(PyObject *self, PyObject *args)
 }
 
 static PyObject *
-_nanomsg_nn_term(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_term(PyObject *self, PyObject *args)
 {
     nn_term();
     Py_RETURN_NONE;
@@ -355,7 +355,7 @@ _nanomsg_nn_term(PyObject *self, PyObject *args)
 
 
 static PyObject *
-_nanomsg_nn_allocmsg(PyObject *self, PyObject *args)
+_nanomsg_cpy_nn_allocmsg(PyObject *self, PyObject *args)
 {
     size_t size;
     int type;
@@ -378,28 +378,54 @@ _nanomsg_nn_allocmsg(PyObject *self, PyObject *args)
     return (PyObject*)message;
 }
 
+
+
+const char *nn_symbol (int i, int *value);
+
+
+static PyObject *
+_nanomsg_cpy_nn_symbols(PyObject *self, PyObject *args)
+{
+    PyObject* py_list;
+    const char *name;
+    int value, i;
+
+    py_list = PyList_New(0);
+
+    for(i = 0; /*break inside loop */ ; i++) {
+        name = nn_symbol(i,&value);
+        if(name == NULL) {
+            break;
+        }
+        PyList_Append(py_list, Py_BuildValue("si", name, value));
+    }
+    return (PyObject*)py_list;
+}
+
+
 static PyMethodDef module_methods[] = {
-    {"nn_errno", _nanomsg_nn_errno, METH_VARARGS, "retrieve the current errno"},
-    {"nn_strerror", _nanomsg_nn_strerror, METH_VARARGS, "convert an error number into human-readable string"},
-    {"nn_socket", _nanomsg_nn_socket, METH_VARARGS, "create an SP socket"},
-    {"nn_close", _nanomsg_nn_close, METH_VARARGS, "close an SP socket"},
-    {"nn_setsockopt", _nanomsg_nn_setsockopt, METH_VARARGS, _nanomsg_nn_setsockopt__doc__},
-    {"nn_getsockopt", _nanomsg_nn_getsockopt, METH_VARARGS, _nanomsg_nn_getsockopt__doc__},
-    {"nn_bind", _nanomsg_nn_bind, METH_VARARGS, "add a local endpoint to the socket"},
-    {"nn_connect", _nanomsg_nn_connect, METH_VARARGS, "add a remote endpoint to the socket"},
-    {"nn_shutdown", _nanomsg_nn_shutdown, METH_VARARGS, "remove an endpoint from a socket"},
-    {"nn_send", _nanomsg_nn_send, METH_VARARGS, "send a message"},
-    {"nn_recv", _nanomsg_nn_recv, METH_VARARGS, "receive a message"},
-    {"nn_device", _nanomsg_nn_device, METH_VARARGS, "start a device"},
-    {"nn_term", _nanomsg_nn_term, METH_VARARGS, "notify all sockets about process termination"},
-    {"nn_allocmsg", _nanomsg_nn_allocmsg, METH_VARARGS, "allocate a message"},
+    {"nn_errno", _nanomsg_cpy_nn_errno, METH_VARARGS, "retrieve the current errno"},
+    {"nn_strerror", _nanomsg_cpy_nn_strerror, METH_VARARGS, "convert an error number into human-readable string"},
+    {"nn_socket", _nanomsg_cpy_nn_socket, METH_VARARGS, "create an SP socket"},
+    {"nn_close", _nanomsg_cpy_nn_close, METH_VARARGS, "close an SP socket"},
+    {"nn_setsockopt", _nanomsg_cpy_nn_setsockopt, METH_VARARGS, _nanomsg_cpy_nn_setsockopt__doc__},
+    {"nn_getsockopt", _nanomsg_cpy_nn_getsockopt, METH_VARARGS, _nanomsg_cpy_nn_getsockopt__doc__},
+    {"nn_bind", _nanomsg_cpy_nn_bind, METH_VARARGS, "add a local endpoint to the socket"},
+    {"nn_connect", _nanomsg_cpy_nn_connect, METH_VARARGS, "add a remote endpoint to the socket"},
+    {"nn_shutdown", _nanomsg_cpy_nn_shutdown, METH_VARARGS, "remove an endpoint from a socket"},
+    {"nn_send", _nanomsg_cpy_nn_send, METH_VARARGS, "send a message"},
+    {"nn_recv", _nanomsg_cpy_nn_recv, METH_VARARGS, "receive a message"},
+    {"nn_device", _nanomsg_cpy_nn_device, METH_VARARGS, "start a device"},
+    {"nn_term", _nanomsg_cpy_nn_term, METH_VARARGS, "notify all sockets about process termination"},
+    {"nn_allocmsg", _nanomsg_cpy_nn_allocmsg, METH_VARARGS, "allocate a message"},
+    {"nn_symbols", _nanomsg_cpy_nn_symbols, METH_VARARGS, "query the names and values of nanomsg symbols"},
     {NULL, NULL, 0, NULL}
 };
 
 
 #ifndef IS_PY3K
 PyMODINIT_FUNC
-init_nanomsg(void)
+init_nanomsg_cpy(void)
 {
     PyObject* m;
 
@@ -413,7 +439,7 @@ init_nanomsg(void)
     PyModule_AddObject(m, "Message", (PyObject *)&MessageType);
 }
 #else
-static struct PyModuleDef _nanomsg_module = {
+static struct PyModuleDef _nanomsg_cpy_module = {
    PyModuleDef_HEAD_INIT,
    MODULE_NAME,
    NULL,
@@ -422,13 +448,13 @@ static struct PyModuleDef _nanomsg_module = {
 };
 
 PyMODINIT_FUNC
-PyInit__nanomsg(void)
+PyInit__nanomsg_cpy(void)
 {
     PyObject* m;
 
     if (PyType_Ready(&MessageType) < 0)
         return NULL;
-    m = PyModule_Create(&_nanomsg_module);
+    m = PyModule_Create(&_nanomsg_cpy_module);
     if(m != NULL) {
         PyModule_AddObject(m, "Message", (PyObject *)&MessageType);
     }
