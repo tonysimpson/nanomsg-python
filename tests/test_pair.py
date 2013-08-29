@@ -1,8 +1,9 @@
 import unittest
 import os
 
-from nanomsg_wrappers import set_wrapper_choice
-set_wrapper_choice(os.environ.get('NANOMSG_PY_TEST_WRAPPER', "ctypes"))
+from nanomsg_wrappers import set_wrapper_choice, get_default_for_platform
+set_wrapper_choice(os.environ.get('NANOMSG_PY_TEST_WRAPPER',
+                                  get_default_for_platform()))
 
 from nanomsg import (
     PAIR,

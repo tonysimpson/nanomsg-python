@@ -12,13 +12,20 @@ def set_wrapper_choice(name):
 def load_wrapper():
     if _choice is not None:
         return importlib.import_module('_nanomsg_' + _choice)
-    if python_implementation() == 'CPython':
-        try:
-            return importlib.import_module('_nanomsg_cpy')
-        except ImportError:
-            warnings.warn("CPython wrapper could not be imported falling back "
-                          "to slower ctypes wrapper!")
+    default = get_default_for_platform()
+    try:
+        return importlib.import_module('_nanomsg_' + default)
+    except ImportError:
+        warnings.warn(("Could not load the default wrapper for your platform: "
+                       "%s, performance may be affected!") % (default,))
     return importlib.import_module('_nanomsg_ctypes')
+
+def get_default_for_platform():
+    if python_implementation() == 'CPython':
+        return 'cpy'
+    else:
+        return 'ctypes'
+
 
 def list_wrappers():
     return [module_name.split('_',2)[-1] for _, module_name, _ in
