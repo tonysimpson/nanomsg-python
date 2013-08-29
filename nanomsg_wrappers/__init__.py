@@ -6,6 +6,7 @@ import warnings
 _choice = None
 
 def set_wrapper_choice(name):
+    global _choice
     _choice = name
 
 def load_wrapper():
