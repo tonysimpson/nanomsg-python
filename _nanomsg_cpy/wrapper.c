@@ -242,14 +242,15 @@ static PyObject *
 _nanomsg_cpy_nn_getsockopt(PyObject *self, PyObject *args)
 {
     int nn_result, socket, level, option;
+    size_t length;
     Py_buffer value;
 
     if (!PyArg_ParseTuple(args, "iiiw*", &socket, &level, &option, &value))
         return NULL;
-
-    nn_result = nn_setsockopt(socket, level, option, value.buf, value.len);
+    length = value.len;
+    nn_result = nn_getsockopt(socket, level, option, value.buf, &length);
     PyBuffer_Release(&value);
-    return Py_BuildValue("i", nn_result);
+    return Py_BuildValue("in", nn_result, length);
 }
 
 static PyObject *

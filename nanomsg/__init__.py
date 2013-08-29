@@ -171,20 +171,18 @@ class Socket(object):
     def get_int_option(self, option, level=SOL_SOCKET):
         size = struct.calcsize('i')
         buf = bytearray(size)
-        rtn = _nn_check_positive_rtn(
-            nn_getsockopt(self._s, level, option, buf)
-        )
-        if rtn != size:
+        rtn, length = nn_getsockopt(self._s, level, option, buf)
+        _nn_check_positive_rtn(rtn)
+        if length != size:
             raise NanoMsgError(('Returned option size (%r) should be the same'
                                 ' as size of int (%r)') % (rtn, size))
-        return struct.unpack_from('i', buf)[0]
+        return struct.unpack_from('i', buffer(buf))[0]
 
     def get_string_option(self, option, level=SOL_SOCKET, max_len=16*1024):
         buf = bytearray(max_len)
-        rtn = _nn_check_positive_rtn(
-            nn_getsockopt(self._s, level, option, buf)
-        )
-        return str(buf[:rtn])
+        rtn, length = nn_getsockopt(self._s, level, option, buf)
+        _nn_check_positive_rtn(rtn)
+        return str(buf[:length])
 
     def send(self, msg, flags=0):
         _nn_check_positive_rtn(nn_send(self._s, msg, flags))
