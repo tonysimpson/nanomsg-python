@@ -158,7 +158,7 @@ class Socket(object):
         else:
             rtn, out_buf = nn_recv(self._s, buf, flags)
         _nn_check_positive_rtn(rtn)
-        return bytes(buffer(out_buf, 0, rtn))
+        return bytes(out_buf)[:rtn]
 
     def set_string_option(self, option, value, level=SOL_SOCKET):
         _nn_check_positive_rtn(nn_setsockopt(self._s, level, option, value))

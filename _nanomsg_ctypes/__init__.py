@@ -123,8 +123,7 @@ def nn_setsockopt(socket, level, option, value):
     returns - 0 on success or < 0 on error
 
     """
-    buf = buffer(value)
-    return _nn_setsockopt(s, level, option, buf, len(buf))
+    return _nn_setsockopt(socket, level, option, ctypes.c_char_p(value), len(value))
 
 
 def nn_getsockopt(socket, level, option, value):
@@ -139,7 +138,9 @@ def nn_getsockopt(socket, level, option, value):
 
     """
     buf = (ctypes.c_char*len(value)).from_buffer(value)
-    return _nn_getsockopt(socket, level, option, buf, len(buf))
+    length = ctypes.c_size_t(len(buf))
+    rtn = _nn_getsockopt(socket, level, option, buf, ctypes.byref(length))
+    return (rtn, length.value)
 
 
 nn_bind = _nn_bind
@@ -154,13 +155,50 @@ nn_shutdown.__doc__ = "remove an endpoint from a socket"
 
 def nn_send(socket, msg, flags):
     "send a message"
-    buf = buffer(msg)
-    return _nn_send(s, buf, len(buf), flags)
+    return _nn_send(socket, ctypes.c_char_p(msg), len(msg), flags)
 
 
-def nn_recv(socket, msg_buf, flags):
-    buf = (ctypes.c_char*len(msg_buf)).from_buffer(msg_buf)
-    return _nn_recv(s, buf, len(buf))
+class Message(object):
+    def __init__(self, address, length):
+        self._address, self._length = address, length
+
+    def to_memoryview(self):
+        byte_array = ctypes.cast(self._address,
+                                 ctypes.POINTER(ctypes.c_ubyte*self._length))
+        return memoryview(byte_array.contents)
+
+    def __str__(self):
+        return self.to_memoryview().tobytes()
+
+    def __del__(self):
+        _nn_freemsg(self._address)
+
+
+def nn_allocmsg(length, type):
+    "allocate a message"
+    pointer = _nn_allocmsg(length, type)
+    print pointer
+    if pointer is None:
+        return None
+    return Message(pointer, length)
+
+
+def nn_recv(socket, *args):
+    "receive a message"
+    if len(args) == 1:
+        flags, = args
+        pointer = ctypes.c_void_p()
+        rtn = _nn_recv(socket, ctypes.byref(pointer), ctypes.c_size_t(-1),
+                       flags)
+        if rtn < 0:
+            return rtn, None
+        else:
+            return rtn, Message(pointer.value, rtn)
+    elif len(args) == 2:
+        msg_buf, flags = args
+        buf = (ctypes.c_char*len(msg_buf)).from_buffer(msg_buf)
+        rtn = _nn_recv(socket, buf, len(buf), flags)
+        return rtn, msg_buf
 
 
 nn_device = _nn_device
