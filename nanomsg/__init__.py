@@ -196,7 +196,7 @@ class Socket(object):
         self.close()
 
     def __repr__(self):
-        return u'<%s id %r, connected to %r, bond to %r>' % (
+        return u'<%s id %r, connected to %r, bound to %r>' % (
             self.__class__.__name__,
             self._s,
             [i.address for i in self.endpoints if type(i) is
