@@ -1,3 +1,6 @@
+from __future__ import division, absolute_import, print_function,\
+ unicode_literals
+
 import ctypes
 import platform
 import sys
@@ -112,6 +115,23 @@ nn_socket.__doc__ = "create an SP socket"
 nn_close = _nn_close
 nn_close.__doc__ = "close an SP socket"
 
+nn_bind = _nn_bind
+nn_bind.__doc__ = "add a local endpoint to the socket"
+
+nn_connect = _nn_connect
+nn_connect.__doc__ = "add a remote endpoint to the socket"
+
+nn_shutdown = _nn_shutdown
+nn_shutdown.__doc__ = "remove an endpoint from a socket"
+
+
+def get_wrapper_writable_buffer(size):
+    """Returns a writable buffer.
+
+    This is the ctypes implementation.
+    """
+    return (ctypes.c_ubyte*size)()
+
 
 def nn_setsockopt(socket, level, option, value):
     """set a socket option
@@ -123,7 +143,13 @@ def nn_setsockopt(socket, level, option, value):
     returns - 0 on success or < 0 on error
 
     """
-    return _nn_setsockopt(socket, level, option, ctypes.c_char_p(value), len(value))
+    try:
+        return _nn_setsockopt(socket, level, option, ctypes.addressof(value),
+                              len(value))
+    except (TypeError, AttributeError):
+        buf_value = ctypes.create_string_buffer(value)
+        return _nn_setsockopt(socket, level, option,
+                              ctypes.addressof(buf_value), len(value))
 
 
 def nn_getsockopt(socket, level, option, value):
@@ -137,29 +163,24 @@ def nn_getsockopt(socket, level, option, value):
     returns - number of bytes copied or on error nunber < 0
 
     """
-    buf = (ctypes.c_char*len(value)).from_buffer(value)
-    length = ctypes.c_size_t(len(buf))
-    rtn = _nn_getsockopt(socket, level, option, buf, ctypes.byref(length))
-    return (rtn, length.value)
-
-
-nn_bind = _nn_bind
-nn_bind.__doc__ = "add a local endpoint to the socket"
-
-nn_connect = _nn_connect
-nn_connect.__doc__ = "add a remote endpoint to the socket"
-
-nn_shutdown = _nn_shutdown
-nn_shutdown.__doc__ = "remove an endpoint from a socket"
+    if memoryview(value).readonly:
+        raise TypeError('Writable buffer is required')
+    size_t_size = ctypes.c_size_t(len(value))
+    rtn = _nn_getsockopt(socket, level, option, ctypes.addressof(value),
+                         ctypes.byref(size_t_size))
+    return (rtn, size_t_size.value)
 
 
 def nn_send(socket, msg, flags):
     "send a message"
-    return _nn_send(socket, ctypes.c_char_p(msg), len(msg), flags)
+    try:
+        return _nn_send(socket, ctypes.addressof(msg), len(msg), flags)
+    except (TypeError, AttributeError):
+        buf_msg = ctypes.create_string_buffer(msg)
+        return _nn_send(socket, ctypes.addressof(buf_msg), len(msg), flags)
 
 
 def _create_message(address, length):
-
     class Message(ctypes.Union):
         _fields_ = [('_buf', ctypes.c_ubyte*length)]
         _len = length
@@ -203,8 +224,9 @@ def nn_recv(socket, *args):
             return rtn, _create_message(pointer.value, rtn)
     elif len(args) == 2:
         msg_buf, flags = args
-        buf = (ctypes.c_char*len(msg_buf)).from_buffer(msg_buf)
-        rtn = _nn_recv(socket, buf, len(buf), flags)
+        if memoryview(msg_buf).readonly:
+            raise TypeError('Writable buffer is required')
+        rtn = _nn_recv(socket, ctypes.addressof(msg_buf), len(msg_buf), flags)
         return rtn, msg_buf
 
 
@@ -214,8 +236,3 @@ nn_device.__doc__ = "start a device"
 nn_term = _nn_term
 nn_term.__doc__ = "notify all sockets about process termination"
 
-
-"""
-    {"nn_allocmsg", _nanomsg_nn_allocmsg, METH_VARARGS, "allocate a message"}
-};
-"""

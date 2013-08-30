@@ -89,7 +89,6 @@ static int Message_getwritebuffer(Message *self, int segment, void **ptrptr)
     *ptrptr = ((Message*)self)->msg;
     return ((Message*)self)->size;
 }
-#endif
 
 static int Message_getsegcountproc(PyObject *self, int *lenp) {
     if (lenp != NULL) {
@@ -97,6 +96,8 @@ static int Message_getsegcountproc(PyObject *self, int *lenp) {
     }
     return 1;
 }
+#endif
+
 
 static PyBufferProcs Message_bufferproces = {
 #ifndef IS_PY3K
