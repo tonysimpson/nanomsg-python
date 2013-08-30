@@ -158,29 +158,36 @@ def nn_send(socket, msg, flags):
     return _nn_send(socket, ctypes.c_char_p(msg), len(msg), flags)
 
 
-class Message(object):
-    def __init__(self, address, length):
-        self._address, self._length = address, length
+def _create_message(address, length):
 
-    def to_memoryview(self):
-        byte_array = ctypes.cast(self._address,
-                                 ctypes.POINTER(ctypes.c_ubyte*self._length))
-        return memoryview(byte_array.contents)
+    class Message(ctypes.Union):
+        _fields_ = [('_buf', ctypes.c_ubyte*length)]
+        _len = length
+        _address = address
 
-    def __str__(self):
-        return self.to_memoryview().tobytes()
+        def __repr__(self):
+            return u'<_nanomsg_cpy.Message size %d, address 0x%x >' % (
+                self._len,
+                self._address
+            )
 
-    def __del__(self):
-        _nn_freemsg(self._address)
+        def __str__(self):
+            return bytes(buffer(self))
+
+        def __del__(self):
+            _nn_freemsg(self._address)
+            self._len = 0
+            self._address = 0
+
+    return Message.from_address(address)
 
 
-def nn_allocmsg(length, type):
+def nn_allocmsg(size, type):
     "allocate a message"
-    pointer = _nn_allocmsg(length, type)
-    print pointer
+    pointer = _nn_allocmsg(size, type)
     if pointer is None:
         return None
-    return Message(pointer, length)
+    return _create_message(pointer, size)
 
 
 def nn_recv(socket, *args):
@@ -193,7 +200,7 @@ def nn_recv(socket, *args):
         if rtn < 0:
             return rtn, None
         else:
-            return rtn, Message(pointer.value, rtn)
+            return rtn, _create_message(pointer.value, rtn)
     elif len(args) == 2:
         msg_buf, flags = args
         buf = (ctypes.c_char*len(msg_buf)).from_buffer(msg_buf)
