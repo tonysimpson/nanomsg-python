@@ -103,6 +103,14 @@ class Socket(object):
     Socket.bind and Socket.connect return subclass of Endpoint which allow
     you to shutdown selected endpoints.
 
+    The constructor also allows you to wrap existing sockets by passing in the
+    socket fd instead of the protocol e.g.:
+        from nanomsg import AF_SP, PAIR, Socket
+        from nanomsg import wrapper as nn
+
+        socket_fd = nn.nn_socket(AF_SP, PAIR)
+        socket = Socket(socket_fd=socket_fd)
+
     """
 
     _INT_PACKER = _Struct(str('i'))
