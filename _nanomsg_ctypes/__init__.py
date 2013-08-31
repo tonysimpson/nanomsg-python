@@ -125,7 +125,7 @@ nn_shutdown = _nn_shutdown
 nn_shutdown.__doc__ = "remove an endpoint from a socket"
 
 
-def get_wrapper_writable_buffer(size):
+def create_writable_buffer(size):
     """Returns a writable buffer.
 
     This is the ctypes implementation.
