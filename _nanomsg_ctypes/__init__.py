@@ -10,7 +10,7 @@ if 'win' in sys.platform:
     _lib = ctypes.windll.nanomsg
 else:
     _functype = ctypes.CFUNCTYPE
-    _lib = ctypes.cdll.LoadLibrary('libnanomsg.so.0.0.0')
+    _lib = ctypes.cdll.LoadLibrary('libnanomsg.so')
 
 
 def _c_func_wrapper_factory(cdecl_text):
