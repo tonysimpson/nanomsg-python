@@ -1,6 +1,7 @@
 from __future__ import division, absolute_import, print_function,\
  unicode_literals
 
+import os
 try:
     from setuptools import setup
 except ImportError:
@@ -8,6 +9,10 @@ except ImportError:
 from distutils.core import Extension
 from distutils.errors import DistutilsError
 from distutils.command.build_ext import build_ext
+
+
+with open(os.path.join('nanomsg','version.py')) as f:
+    exec(f.read())
 
 
 class skippable_build_ext(build_ext):
@@ -38,9 +43,28 @@ cpy_extension = Extension(str('_nanomsg_cpy'),
                     )
 
 
-setup(name='nanomsg',
-      version='0.1a2',
-      packages=['nanomsg', '_nanomsg_ctypes', 'nanomsg_wrappers'],
-      ext_modules=[cpy_extension],
-      cmdclass = {'build_ext': skippable_build_ext},
+setup(
+    name='nanomsg',
+    version=__version__,
+    packages=['nanomsg', '_nanomsg_ctypes', 'nanomsg_wrappers'],
+    ext_modules=[cpy_extension],
+    cmdclass = {'build_ext': skippable_build_ext},
+
+    description='Python library for nanomsg.',
+    classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 2",
+        "Programming Language :: Python :: 2.6",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3",
+        "Programming Language :: Python :: 3.2",
+        "Programming Language :: Python :: 3.3",
+    ],
+    author='Tony Simpson',
+    author_email='agjasimpson@gmail.com',
+    url='https://github.com/tonysimpson/nanomsg-python',
+    keywords=['nanomsg', 'driver'],
+    license='MIT',
 )
