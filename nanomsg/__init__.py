@@ -1,12 +1,10 @@
-from __future__ import division, absolute_import, print_function,\
- unicode_literals
+from __future__ import division, absolute_import, print_function, unicode_literals
 
 from .version import __version__
 from struct import Struct as _Struct
-from nanomsg_wrappers import load_wrapper as _load_wrapper
 import warnings
 
-wrapper = _load_wrapper()
+from . import wrapper
 
 #Import contants into module with NN_ prefix stripped
 for name, value in wrapper.nn_symbols():
