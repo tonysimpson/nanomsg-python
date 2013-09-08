@@ -67,4 +67,5 @@ setup(
     url='https://github.com/tonysimpson/nanomsg-python',
     keywords=['nanomsg', 'driver'],
     license='MIT',
+    test_suite="tests", 
 )
