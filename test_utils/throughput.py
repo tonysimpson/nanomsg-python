@@ -2,8 +2,8 @@ from __future__ import division, absolute_import, print_function,\
  unicode_literals
 import os
 from nanomsg_wrappers import set_wrapper_choice, get_default_for_platform
-set_wrapper_choice(os.environ.get('NANOMSG_PY_TEST_WRAPPER',
-                                  get_default_for_platform()))
+WRAPPER = os.environ.get('NANOMSG_PY_TEST_WRAPPER', get_default_for_platform())
+set_wrapper_choice(WRAPPER)
 
 from nanomsg import (
     PAIR,
@@ -24,7 +24,8 @@ msg = create_message_buffer(BUFFER_SIZE, 0)
 
 DURATION = 10
 
-print('Working')
+print(('Working NANOMSG_PY_TEST_BUFFER_SIZE %d NANOMSG_PY_TEST_WRAPPER %r '
+       'NANOMSG_PY_TEST_ADDRESS %r') % (BUFFER_SIZE, WRAPPER, SOCKET_ADDRESS))
 count = 0
 start_t = time.time()
 with Socket(PAIR) as socket1:

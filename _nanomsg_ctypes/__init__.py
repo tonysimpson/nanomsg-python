@@ -99,7 +99,7 @@ def nn_symbols():
         if name is None:
             break
         i += 1
-        name_value_pairs.append((name, value.value))
+        name_value_pairs.append((name.decode('ascii'), value.value))
     return name_value_pairs
 
 
@@ -174,7 +174,7 @@ def nn_getsockopt(socket, level, option, value):
 def nn_send(socket, msg, flags):
     "send a message"
     try:
-        return _nn_send(socket, ctypes.addressof(msg), len(msg), flags)
+        return _nn_send(socket, ctypes.addressof(msg), len(buffer(msg)), flags)
     except (TypeError, AttributeError):
         buf_msg = ctypes.create_string_buffer(msg)
         return _nn_send(socket, ctypes.addressof(buf_msg), len(msg), flags)
@@ -187,7 +187,7 @@ def _create_message(address, length):
         _address = address
 
         def __repr__(self):
-            return u'<_nanomsg_cpy.Message size %d, address 0x%x >' % (
+            return '<_nanomsg_cpy.Message size %d, address 0x%x >' % (
                 self._len,
                 self._address
             )
@@ -224,9 +224,10 @@ def nn_recv(socket, *args):
             return rtn, _create_message(pointer.value, rtn)
     elif len(args) == 2:
         msg_buf, flags = args
-        if memoryview(msg_buf).readonly:
+        mv_buf = memoryview(msg_buf)
+        if mv_buf.readonly:
             raise TypeError('Writable buffer is required')
-        rtn = _nn_recv(socket, ctypes.addressof(msg_buf), len(msg_buf), flags)
+        rtn = _nn_recv(socket, ctypes.addressof(msg_buf), len(mv_buf), flags)
         return rtn, msg_buf
 
 

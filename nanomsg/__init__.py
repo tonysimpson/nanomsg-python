@@ -8,7 +8,7 @@ from . import wrapper
 
 #Import contants into module with NN_ prefix stripped
 for name, value in wrapper.nn_symbols():
-    if name.startswith(b'NN_'):
+    if name.startswith('NN_'):
         name = name[3:]
     globals()[name] = value
 
@@ -246,7 +246,7 @@ class Socket(object):
     def bind(self, address):
         """Add a local endpoint to the socket"""
         endpoint_id = _nn_check_positive_rtn(
-            wrapper.nn_bind(self._fd, address)
+            wrapper.nn_bind(self._fd, address.encode())
         )
         ep = Socket.BindEndpoint(self, endpoint_id, address)
         self._endpoints.append(ep)
@@ -255,7 +255,7 @@ class Socket(object):
     def connect(self, address):
         """Add a remote endpoint to the socket"""
         endpoint_id = _nn_check_positive_rtn(
-            wrapper.nn_connect(self.fd, address)
+            wrapper.nn_connect(self.fd, address.encode())
         )
         ep = Socket.ConnectEndpoint(self, endpoint_id, address)
         self._endpoints.append(ep)
