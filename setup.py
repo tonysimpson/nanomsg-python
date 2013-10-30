@@ -46,7 +46,7 @@ cpy_extension = Extension(str('_nanomsg_cpy'),
 setup(
     name='nanomsg',
     version=__version__,
-    packages=['nanomsg', '_nanomsg_ctypes', 'nanomsg_wrappers'],
+    packages=[str('nanomsg'), str('_nanomsg_ctypes'), str('nanomsg_wrappers')],
     ext_modules=[cpy_extension],
     cmdclass = {'build_ext': skippable_build_ext},
 
