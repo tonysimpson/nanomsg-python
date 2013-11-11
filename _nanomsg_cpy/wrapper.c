@@ -3,6 +3,10 @@
 #include <bytesobject.h>
 #include <nanomsg/nn.h>
 
+#ifdef WITH_NANOCONFIG
+#include <nanomsg/nanoconfig.h>
+#endif
+
 
 #if PY_MAJOR_VERSION >= 3
 #define IS_PY3K
@@ -205,6 +209,23 @@ _nanomsg_cpy_nn_close(PyObject *self, PyObject *args)
     return Py_BuildValue("i", nn_result);
 }
 
+#ifdef WITH_NANOCONFIG
+static PyObject *
+_nanomsg_cpy_nc_close(PyObject *self, PyObject *args)
+{
+    int nn_result, socket;
+
+    if (!PyArg_ParseTuple(args, "i", &socket))
+        return NULL;
+
+    CONCURRENCY_POINT_BEGIN
+    nc_close(socket);
+    CONCURRENCY_POINT_END
+
+    Py_RETURN_NONE;
+}
+#endif
+
 static const char _nanomsg_cpy_nn_setsockopt__doc__[] =
 "set a socket option\n"
 "\n"
@@ -273,6 +294,18 @@ _nanomsg_cpy_nn_connect(PyObject *self, PyObject *args)
         return NULL;
     return Py_BuildValue("i", nn_connect(socket, address));
 }
+
+#ifdef WITH_NANOCONFIG
+static PyObject *
+_nanomsg_cpy_nc_configure(PyObject *self, PyObject *args)
+{
+    int socket;
+    const char *address;
+    if (!PyArg_ParseTuple(args, "is", &socket, &address))
+        return NULL;
+    return Py_BuildValue("i", nc_configure(socket, address));
+}
+#endif
 
 static PyObject *
 _nanomsg_cpy_nn_shutdown(PyObject *self, PyObject *args)
@@ -355,6 +388,15 @@ _nanomsg_cpy_nn_term(PyObject *self, PyObject *args)
     Py_RETURN_NONE;
 }
 
+#ifdef WITH_NANOCONFIG
+static PyObject *
+_nanomsg_cpy_nc_term(PyObject *self, PyObject *args)
+{
+    nc_term();
+    Py_RETURN_NONE;
+}
+#endif
+
 
 static PyObject *
 _nanomsg_cpy_nn_allocmsg(PyObject *self, PyObject *args)
@@ -421,6 +463,11 @@ static PyMethodDef module_methods[] = {
     {"nn_term", _nanomsg_cpy_nn_term, METH_VARARGS, "notify all sockets about process termination"},
     {"nn_allocmsg", _nanomsg_cpy_nn_allocmsg, METH_VARARGS, "allocate a message"},
     {"nn_symbols", _nanomsg_cpy_nn_symbols, METH_VARARGS, "query the names and values of nanomsg symbols"},
+#ifdef WITH_NANOCONFIG
+    {"nc_configure", _nanomsg_cpy_nc_configure, METH_VARARGS, "configure socket using nanoconfig"},
+    {"nc_close", _nanomsg_cpy_nc_close, METH_VARARGS, "close an SP socket configured with nn_configure"},
+    {"nc_term", _nanomsg_cpy_nc_term, METH_VARARGS, "shut down nanoconfig worker thread"},
+#endif
     {NULL, NULL, 0, NULL}
 };
 

@@ -2,6 +2,7 @@ from __future__ import division, absolute_import, print_function,\
  unicode_literals
 
 import os
+import sys
 try:
     from setuptools import setup
 except ImportError:
@@ -36,11 +37,25 @@ class skippable_build_ext(build_ext):
             print("=" * 79)
             print()
 
-
-cpy_extension = Extension(str('_nanomsg_cpy'),
-                    sources=[str('_nanomsg_cpy/wrapper.c')],
-                    libraries=[str('nanomsg')],
-                    )
+try:
+    import ctypes
+    if 'win' in sys.platform:
+        _lib = ctypes.windll.nanoconfig
+    else:
+        _lib = ctypes.cdll.LoadLibrary('libnanoconfig.so')
+except OSError:
+    # Building without nanoconfig
+    cpy_extension = Extension(str('_nanomsg_cpy'),
+                        sources=[str('_nanomsg_cpy/wrapper.c')],
+                        libraries=[str('nanomsg')],
+                        )
+else:
+    # Building with nanoconfig
+    cpy_extension = Extension(str('_nanomsg_cpy'),
+                        define_macros=[('WITH_NANOCONFIG', '1')],
+                        sources=[str('_nanomsg_cpy/wrapper.c')],
+                        libraries=[str('nanomsg'), str('nanoconfig')],
+                        )
 
 
 setup(
@@ -67,5 +82,5 @@ setup(
     url='https://github.com/tonysimpson/nanomsg-python',
     keywords=['nanomsg', 'driver'],
     license='MIT',
-    test_suite="tests", 
+    test_suite="tests",
 )
