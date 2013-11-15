@@ -237,3 +237,25 @@ nn_device.__doc__ = "start a device"
 nn_term = _nn_term
 nn_term.__doc__ = "notify all sockets about process termination"
 
+try:
+    if 'win' in sys.platform:
+        _nclib = ctypes.windll.nanoconfig
+    else:
+        _nclib = ctypes.cdll.LoadLibrary('libnanoconfig.so')
+except OSError:
+    pass # No nanoconfig, sorry
+else:
+    # int nc_configure (int s, const char *addr)
+    nc_configure = _functype(ctypes.c_int, ctypes.c_int, ctypes.c_char_p)(
+        ('nc_configure', _nclib), ((1, 's'), (1, 'addr')))
+    nc_configure.__doc__ = "configure socket using nanoconfig"
+
+    # void nc_close(int s);
+    nc_close = _functype(None, ctypes.c_int)(
+        ('nc_close', _nclib), ((1, 's'),))
+    nc_close.__doc__ = "close an SP socket configured with nn_configure"
+
+    # void nc_term();
+    nc_term = _functype(None)(
+        ('nc_term', _nclib), ())
+    nc_term.__doc__ = "shutdown nanoconfig worker thread"

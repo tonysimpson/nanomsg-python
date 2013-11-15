@@ -6,6 +6,8 @@ import warnings
 
 from . import wrapper
 
+nanoconfig_started = False
+
 #Import contants into module with NN_ prefix stripped
 for name, value in wrapper.nn_symbols():
     if name.startswith('NN_'):
@@ -77,6 +79,10 @@ class Device(object):
 
 def terminate_all():
     """Close all sockets and devices"""
+    global nanoconfig_started
+    if nanoconfig_started:
+        wrapper.nc_term()
+        nanoconfig_started = False
     wrapper.nn_term()
 
 
@@ -142,6 +148,12 @@ class Socket(object):
 
     class ConnectEndpoint(_Endpoint):
         pass
+
+    class NanoconfigEndpoint(_Endpoint):
+
+        def shutdown(self):
+            raise NotImplementedError(
+                "Shutdown of nanoconfig endpoint is not supported")
 
     def __init__(self, protocol=None, socket_fd=None, domain=AF_SP):
         if protocol is not None and socket_fd is not None:
@@ -243,8 +255,15 @@ class Socket(object):
         """
         return list(self._endpoints)
 
+    @property
+    def uses_nanoconfig(self):
+        return (self._endpoints and
+            isinstance(self._endpoints[0], Socket.NanoconfigEndpoint))
+
     def bind(self, address):
         """Add a local endpoint to the socket"""
+        if self.uses_nanoconfig:
+            raise ValueError("Nanoconfig address must be sole endpoint")
         endpoint_id = _nn_check_positive_rtn(
             wrapper.nn_bind(self._fd, address.encode())
         )
@@ -254,10 +273,26 @@ class Socket(object):
 
     def connect(self, address):
         """Add a remote endpoint to the socket"""
+        if self.uses_nanoconfig:
+            raise ValueError("Nanoconfig address must be sole endpoint")
         endpoint_id = _nn_check_positive_rtn(
             wrapper.nn_connect(self.fd, address.encode())
         )
         ep = Socket.ConnectEndpoint(self, endpoint_id, address)
+        self._endpoints.append(ep)
+        return ep
+
+    def configure(self, address):
+        """Configure socket's addresses with nanoconfig"""
+        global nanoconfig_started
+        if len(self._endpoints):
+            raise ValueError("Nanoconfig address must be sole endpoint")
+        endpoint_id = _nn_check_positive_rtn(
+            wrapper.nc_configure(self.fd, address.encode())
+        )
+        if not nanoconfig_started:
+            nanoconfig_started = True
+        ep = Socket.NanoconfigEndpoint(self, endpoint_id, address)
         self._endpoints.append(ep)
         return ep
 
@@ -266,7 +301,10 @@ class Socket(object):
         if self.is_open():
             fd = self._fd
             self._fd = -1
-            _nn_check_positive_rtn(wrapper.nn_close(fd))
+            if self.uses_nanoconfig:
+                wrapper.nc_close(fd)
+            else:
+                _nn_check_positive_rtn(wrapper.nn_close(fd))
 
     def is_open(self):
         """Returns true if the socket has a valid socket id.
