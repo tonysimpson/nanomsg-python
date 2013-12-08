@@ -5,7 +5,7 @@ import ctypes
 import platform
 import sys
 
-if 'win' in sys.platform:
+if sys.platform in ('win32', 'cygwin'):
     _functype = ctypes.WINFUNCTYPE
     _lib = ctypes.windll.nanomsg
 else:
@@ -238,7 +238,7 @@ nn_term = _nn_term
 nn_term.__doc__ = "notify all sockets about process termination"
 
 try:
-    if 'win' in sys.platform:
+    if sys.platform in ('win32', 'cygwin'):
         _nclib = ctypes.windll.nanoconfig
     else:
         _nclib = ctypes.cdll.LoadLibrary('libnanoconfig.so')
