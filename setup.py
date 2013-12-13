@@ -39,7 +39,7 @@ class skippable_build_ext(build_ext):
 
 try:
     import ctypes
-    if 'win' in sys.platform:
+    if sys.platform in ('win32', 'cygwin'):
         _lib = ctypes.windll.nanoconfig
     else:
         _lib = ctypes.cdll.LoadLibrary('libnanoconfig.so')
