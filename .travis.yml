@@ -16,4 +16,4 @@ install:
       && popd;
 
 # command to run tests, e.g. python setup.py test      
-script: python setup.py develop && python -c "import _nanomsg_cpy" && python setup.py test
+script: LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib python setup.py test
