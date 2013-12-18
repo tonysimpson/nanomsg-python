@@ -9,6 +9,7 @@ python:
 install:
   - git clone --quiet --depth=100 "https://github.com/nanomsg/nanomsg.git" ~/builds/nanomsg
       && pushd ~/builds/nanomsg
+      && ./autogen.sh
       && ./configure
       && make 
       && sudo make install
