@@ -4,7 +4,15 @@ python:
   - "3.3"
   - "2.7"
   - "2.6"
+  
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-# install: 
-# command to run tests, e.g. python setup.py test
-script: git clone "https://github.com/nanomsg/nanomsg.git" /tmp/nanomsg && cd /tmp/nanomsg && ./configure && make && sudo make install && cd - && python setup.py test
+install:
+  - git clone --quiet --depth=100 "https://github.com/nanomsg/nanomsg.git" ~/builds/nanomsg
+      && pushd ~/builds/nanomsg
+      && ./configure
+      && make 
+      && sudo make install
+      && popd;
+
+# command to run tests, e.g. python setup.py test      
+script: python setup.py test
