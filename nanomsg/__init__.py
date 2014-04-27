@@ -6,6 +6,11 @@ import warnings
 
 from . import wrapper
 
+try:
+    buffer
+except NameError:
+    buffer = memoryview  # py3
+
 nanoconfig_started = False
 
 #Import contants into module with NN_ prefix stripped
@@ -265,7 +270,7 @@ class Socket(object):
         if self.uses_nanoconfig:
             raise ValueError("Nanoconfig address must be sole endpoint")
         endpoint_id = _nn_check_positive_rtn(
-            wrapper.nn_bind(self._fd, address.encode())
+            wrapper.nn_bind(self._fd, address)
         )
         ep = Socket.BindEndpoint(self, endpoint_id, address)
         self._endpoints.append(ep)
@@ -276,7 +281,7 @@ class Socket(object):
         if self.uses_nanoconfig:
             raise ValueError("Nanoconfig address must be sole endpoint")
         endpoint_id = _nn_check_positive_rtn(
-            wrapper.nn_connect(self.fd, address.encode())
+            wrapper.nn_connect(self.fd, address)
         )
         ep = Socket.ConnectEndpoint(self, endpoint_id, address)
         self._endpoints.append(ep)
@@ -288,7 +293,7 @@ class Socket(object):
         if len(self._endpoints):
             raise ValueError("Nanoconfig address must be sole endpoint")
         endpoint_id = _nn_check_positive_rtn(
-            wrapper.nc_configure(self.fd, address.encode())
+            wrapper.nc_configure(self.fd, address)
         )
         if not nanoconfig_started:
             nanoconfig_started = True

@@ -25,7 +25,7 @@ class TestPubSubSockets(unittest.TestCase):
                 s1.send('test')
                 s2.recv()
                 s1.send('a') # should not get received
-                expected = 'test121212'
+                expected = b'test121212'
                 s1.send(expected)
 
                 actual = s2.recv()
