@@ -2,9 +2,19 @@ language: python
 python:
   - "3.2"
   - "3.3"
+  - "3.4"
   - "2.7"
   - "2.6"
+  
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-# install: 
-# command to run tests, e.g. python setup.py test
-script:  python setup.py test
+install:
+  - git clone --quiet --depth=100 "https://github.com/nanomsg/nanomsg.git" ~/builds/nanomsg
+      && pushd ~/builds/nanomsg
+      && ./autogen.sh
+      && ./configure
+      && make 
+      && sudo make install
+      && popd;
+
+# command to run tests, e.g. python setup.py test      
+script: LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib python setup.py test

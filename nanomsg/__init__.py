@@ -221,7 +221,7 @@ class Socket(object):
         return self.set_int_option(SOL_SOCKET, RECONNECT_IVL_MAX, value)
 
     send_fd = property(_get_send_fd, doc='Send file descripter')
-    recv_fd = property(_get_send_fd, doc='Receive file descripter')
+    recv_fd = property(_get_recv_fd, doc='Receive file descripter')
     linger  = property(_get_linger, _set_linger, doc='Socket linger in '
                        'milliseconds (0.001 seconds)')
     recv_buffer_size = property(_get_recv_buffer_size, _set_recv_buffer_size,
