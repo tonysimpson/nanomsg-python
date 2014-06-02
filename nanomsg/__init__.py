@@ -79,7 +79,7 @@ class Device(object):
         This will not return until the device stops due to error or
         termination.
         """
-        _nn_check_positive_rtn(nn_device(self._fd1, self._fd2))
+        _nn_check_positive_rtn(wrapper.nn_device(self._fd1, self._fd2))
 
 
 def terminate_all():
