@@ -16,7 +16,7 @@ Bugs and change requests can be made
 Example
 =======
 
-    from __future__ print_function
+    from __future__ import print_function
     from nanomsg import Socket, PAIR, PUB
     s1 = Socket(PAIR)
     s2 = Socket(PAIR)
