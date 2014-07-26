@@ -16,38 +16,43 @@ Bugs and change requests can be made
 Example
 =======
 
-    from __future__ import print_function
-    from nanomsg import Socket, PAIR, PUB
-    s1 = Socket(PAIR)
-    s2 = Socket(PAIR)
-    s1.bind('inproc://bob')
-    s2.connect('inproc://bob')
-    s1.send(b'hello nanomsg')
-    print(s2.recv())
-    s1.close()
-    s2.close()
+```python
+from __future__ import print_function
+from nanomsg import Socket, PAIR, PUB
+s1 = Socket(PAIR)
+s2 = Socket(PAIR)
+s1.bind('inproc://bob')
+s2.connect('inproc://bob')
+s1.send(b'hello nanomsg')
+print(s2.recv())
+s1.close()
+s2.close()
+```
 
 Or if you don't mind nesting you can use Socket as a context manager
 
-    with Socket(PUB) as pub_socket:
-        .... do something with pub_socket
-    # socket is closed
+```python
+with Socket(PUB) as pub_socket:
+    .... do something with pub_socket
+# socket is closed
+```
 
 The lower level API is also available if you need the additional control or
 performance, but it is harder to use. Error checking left out for brevity.
 
-    from nanomsg import wrapper as nn_wrapper
-    from nanomsg import PAIR, AF_SP
+```python
+from nanomsg import wrapper as nn_wrapper
+from nanomsg import PAIR, AF_SP
 
-    s1 = nn_wrapper.nn_socket(AF_SP, PAIR)
-    s2 = nn_wrapper.nn_socket(AF_SP, PAIR)
-    nn_wrapper.nn_bind(s1, 'inproc://bob')
-    nn_wrapper.nn_connect(s2, 'inproc://bob')
-    nn_wrapper.nn_send(s1, b'hello nanomsg', 0)
-    result, buffer = nn_wrapper.nn_recv(s2, 0)
-    print(bytes(buffer))
-    nn_wrapper.nn_term()
-
+s1 = nn_wrapper.nn_socket(AF_SP, PAIR)
+s2 = nn_wrapper.nn_socket(AF_SP, PAIR)
+nn_wrapper.nn_bind(s1, 'inproc://bob')
+nn_wrapper.nn_connect(s2, 'inproc://bob')
+nn_wrapper.nn_send(s1, b'hello nanomsg', 0)
+result, buffer = nn_wrapper.nn_recv(s2, 0)
+print(bytes(buffer))
+nn_wrapper.nn_term()
+```
 
 Licence
 =======
