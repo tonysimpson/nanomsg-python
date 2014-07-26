@@ -27,12 +27,12 @@ class TestGeneralSocketMethods(unittest.TestCase):
     def test_bind(self):
         endpoint = self.socket.bind(SOCKET_ADDRESS)
 
-        self.assertIsNotNone(endpoint)
+        self.assertNotEqual(None, endpoint)
 
     def test_connect(self):
         endpoint = self.socket.connect(SOCKET_ADDRESS)
 
-        self.assertIsNotNone(endpoint)
+        self.assertNotEqual(None, endpoint)
 
     def test_is_open_is_true_when_open(self):
         self.assertTrue(self.socket.is_open())

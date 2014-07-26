@@ -56,6 +56,12 @@ else:
                         sources=[str('_nanomsg_cpy/wrapper.c')],
                         libraries=[str('nanomsg'), str('nanoconfig')],
                         )
+install_requires = []
+
+try:
+    import importlib
+except ImportError:
+    install_requires.append('importlib')
 
 
 setup(
@@ -64,7 +70,7 @@ setup(
     packages=[str('nanomsg'), str('_nanomsg_ctypes'), str('nanomsg_wrappers')],
     ext_modules=[cpy_extension],
     cmdclass = {'build_ext': skippable_build_ext},
-
+    install_requires=install_requires,
     description='Python library for nanomsg.',
     classifiers=[
         "Development Status :: 3 - Alpha",
