@@ -20,7 +20,7 @@ def pkgconfig(*packages, **kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
     args = ('pkg-config', '--libs', '--cflags') + packages
     output, _ = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()
-    if "not found" in output:
+    if "not found".encode("ascii") in output:
         return {} # probably forgot to set PKG_CONFIG_PATH
     for token in output.split():
         kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
