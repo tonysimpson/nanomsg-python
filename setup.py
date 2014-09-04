@@ -3,6 +3,7 @@ from __future__ import division, absolute_import, print_function,\
 
 import os
 import sys
+import subprocess
 try:
     from setuptools import setup
 except ImportError:
@@ -15,10 +16,10 @@ from distutils.command.build_ext import build_ext
 with open(os.path.join('nanomsg','version.py')) as f:
     exec(f.read())
 
-import commands
 def pkgconfig(*packages, **kw):
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
-    output = commands.getoutput("pkg-config --libs --cflags %s" % ' '.join(packages))
+    args = ('pkg-config', '--libs', '--cflags') + packages
+    output, _ = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()
     if "not found" in output:
         return {} # probably forgot to set PKG_CONFIG_PATH
     for token in output.split():
