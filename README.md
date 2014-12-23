@@ -54,7 +54,7 @@ print(bytes(buffer))
 nn_wrapper.nn_term()
 ```
 
-Licence
+License
 =======
 
 MIT
@@ -63,4 +63,4 @@ MIT
 Authors
 =======
 
-[Tony Simpson](github.com/tonysimpson)
+[Tony Simpson](https://github.com/tonysimpson)
