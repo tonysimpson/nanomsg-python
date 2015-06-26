@@ -375,10 +375,13 @@ _nanomsg_cpy_nn_recv(PyObject *self, PyObject *args)
 static PyObject *
 _nanomsg_cpy_nn_device(PyObject *self, PyObject *args)
 {
-    int socket_1, socket_2;
+    int socket_1, socket_2, nn_result;
     if (!PyArg_ParseTuple(args, "ii", &socket_1, &socket_2))
         return NULL;
-    return Py_BuildValue("i", nn_device(socket_1, socket_2));
+    CONCURRENCY_POINT_BEGIN
+    nn_result = nn_device(socket_1, socket_2);
+    CONCURRENCY_POINT_END
+    return Py_BuildValue("i", nn_result);
 }
 
 static PyObject *
