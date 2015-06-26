@@ -1,6 +1,8 @@
 nanomsg-python
 ==============
 
+**This project is looking for a new maintainer see https://github.com/tonysimpson/nanomsg-python/issues/43**
+
 Python library for [nanomsg](http://nanomsg.org/) which does not compromise on
 usability or performance.
 
