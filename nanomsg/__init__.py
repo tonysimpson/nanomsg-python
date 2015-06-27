@@ -96,7 +96,7 @@ class Socket(object):
 
     protocol should be a nanomsg protocol constant e.g. nanomsg.PAIR
 
-    This class supports being used as a context manager which should gaurentee
+    This class supports being used as a context manager which should guarantee
     it is closed.
 
     e.g.:
