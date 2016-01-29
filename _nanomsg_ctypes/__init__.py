@@ -8,6 +8,9 @@ import sys
 if sys.platform in ('win32', 'cygwin'):
     _functype = ctypes.WINFUNCTYPE
     _lib = ctypes.windll.nanomsg
+elif sys.platform in ('darwin'):
+    _functype = ctypes.CFUNCTYPE
+    _lib = ctypes.cdll.LoadLibrary('libnanomsg.dylib')
 else:
     _functype = ctypes.CFUNCTYPE
     _lib = ctypes.cdll.LoadLibrary('libnanomsg.so')
