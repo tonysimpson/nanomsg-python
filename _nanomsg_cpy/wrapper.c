@@ -385,6 +385,54 @@ _nanomsg_cpy_nn_device(PyObject *self, PyObject *args)
 }
 
 static PyObject *
+_nanomsg_cpy_nn_poll(PyObject *self, PyObject *args)
+{
+    int timeout_ms, res;
+    PyObject *socket_event_dict, *sockets;
+    Py_ssize_t socket_count;
+    struct nn_pollfd *fds;
+
+    if (!PyArg_ParseTuple(args, "O!i", &PyDict_Type, &socket_event_dict, &timeout_ms)) {
+        return NULL;
+    }
+
+    sockets = PyDict_New();   
+    socket_count = PyDict_Size(socket_event_dict);
+    fds = malloc(sizeof(struct nn_pollfd)*socket_count);
+
+    // build up fds array
+    Py_ssize_t pos = 0;
+    int i = 0;
+    PyObject *key, *value;
+    while (PyDict_Next(socket_event_dict, &pos, &key, &value)) {
+        fds[i].fd = (int)PyLong_AsLong(key);
+        fds[i].events = (short)PyLong_AsLong(value);
+        fds[i].revents = 0;
+        i++;
+    }
+
+    CONCURRENCY_POINT_BEGIN
+    res = nn_poll(fds, (int)socket_count, timeout_ms);
+    CONCURRENCY_POINT_END
+
+    // if success build result dictionary
+    if (res > 0) {
+        for(i = 0; i < socket_count; i++) {
+            int fd = fds[i].fd;
+            int revents = fds[i].revents;
+            PyDict_SetItem(sockets, Py_BuildValue("i", fd), Py_BuildValue("i", revents));
+        }
+    }
+
+    free(fds);
+
+    PyObject *code = PyLong_FromUnsignedLong(res);
+    PyObject *result = PyTuple_Pack(2, code, sockets);
+
+    return result;
+}
+
+static PyObject *
 _nanomsg_cpy_nn_term(PyObject *self, PyObject *args)
 {
     nn_term();
@@ -463,6 +511,7 @@ static PyMethodDef module_methods[] = {
     {"nn_send", _nanomsg_cpy_nn_send, METH_VARARGS, "send a message"},
     {"nn_recv", _nanomsg_cpy_nn_recv, METH_VARARGS, "receive a message"},
     {"nn_device", _nanomsg_cpy_nn_device, METH_VARARGS, "start a device"},
+    {"nn_poll", _nanomsg_cpy_nn_poll, METH_VARARGS, "poll sockets"},
     {"nn_term", _nanomsg_cpy_nn_term, METH_VARARGS, "notify all sockets about process termination"},
     {"nn_allocmsg", _nanomsg_cpy_nn_allocmsg, METH_VARARGS, "allocate a message"},
     {"nn_symbols", _nanomsg_cpy_nn_symbols, METH_VARARGS, "query the names and values of nanomsg symbols"},

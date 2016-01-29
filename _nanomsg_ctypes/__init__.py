@@ -27,12 +27,14 @@ def _c_func_wrapper_factory(cdecl_text):
         types = {
             'void': None,
             'char *': ctypes.c_char_p,
+            'const char *': ctypes.c_char_p,
             'int': ctypes.c_int,
             'int *': ctypes.POINTER(ctypes.c_int),
             'void *': ctypes.c_void_p,
             'size_t':  ctypes.c_size_t,
             'size_t *':  ctypes.POINTER(ctypes.c_size_t),
             'struct nn_msghdr *': ctypes.c_void_p,
+            'struct nn_pollfd *': ctypes.c_void_p,
         }
         type_def_without_const = type_def.replace('const ','')
         if type_def_without_const in types:
@@ -75,6 +77,7 @@ NN_EXPORT int nn_setsockopt (int s, int level, int option, const void \
 *optval, size_t optvallen);
 NN_EXPORT int nn_getsockopt (int s, int level, int option, void *optval, \
 size_t *optvallen);
+NN_EXPORT int nn_poll(struct nn_pollfd *fds, int nfds, int timeout);
 NN_EXPORT int nn_bind (int s, const char *addr);
 NN_EXPORT int nn_connect (int s, const char *addr);
 NN_EXPORT int nn_shutdown (int s, int how);
@@ -212,6 +215,33 @@ def nn_allocmsg(size, type):
     if pointer is None:
         return None
     return _create_message(pointer, size)
+
+
+class PollFds(ctypes.Structure):
+    _fields_ = ("fd", ctypes.c_int), ("events", ctypes.c_short), ("revents", ctypes.c_short)
+
+
+def nn_poll(fds, timeout=-1):
+    """
+    nn_pollfds
+    :param fds: dict (file descriptor => pollmode)
+    :param timeout: timeout in milliseconds
+    :return:
+    """
+    polls = []
+    for i, entry in enumerate(fds.items()):
+        s = PollFds()
+        fd, event = entry
+        s.fd = fd
+        s.events = event
+        s.revents = 0
+        polls.append(s)
+
+    poll_array = (PollFds*len(fds))(*polls)
+    res = _nn_poll(poll_array, len(fds), int(timeout))
+    if res <= 0:
+        return res, {}
+    return res, {item.fd: item.revents for item in poll_array}
 
 
 def nn_recv(socket, *args):
