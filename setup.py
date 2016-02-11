@@ -41,6 +41,8 @@ try:
     import ctypes
     if sys.platform in ('win32', 'cygwin'):
         _lib = ctypes.windll.nanoconfig
+    elif sys.platform == 'darwin':
+        _lib = ctypes.cdll.LoadLibrary('libnanoconfig.dylib')
     else:
         _lib = ctypes.cdll.LoadLibrary('libnanoconfig.so')
 except OSError:
