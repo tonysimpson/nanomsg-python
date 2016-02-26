@@ -50,6 +50,7 @@ except OSError:
     cpy_extension = Extension(str('_nanomsg_cpy'),
                         sources=[str('_nanomsg_cpy/wrapper.c')],
                         libraries=[str('nanomsg')],
+                        include_dirs=['/usr/local/include', ],
                         )
 else:
     # Building with nanoconfig
@@ -57,6 +58,7 @@ else:
                         define_macros=[('WITH_NANOCONFIG', '1')],
                         sources=[str('_nanomsg_cpy/wrapper.c')],
                         libraries=[str('nanomsg'), str('nanoconfig')],
+                        include_dirs=['/usr/local/include', ],
                         )
 install_requires = []
 
