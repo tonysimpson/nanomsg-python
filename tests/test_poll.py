@@ -17,7 +17,7 @@ from nanomsg import (
     NanoMsgAPIError
 )
 
-SOCKET_ADDRESS = os.environ.get('NANOMSG_PY_TEST_ADDRESS', "inproc://{}".format(uuid.uuid4()))
+SOCKET_ADDRESS = os.environ.get('NANOMSG_PY_TEST_ADDRESS', "inproc://{0}".format(uuid.uuid4()))
 
 
 class TestPoll(unittest.TestCase):
