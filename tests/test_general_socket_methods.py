@@ -8,13 +8,11 @@ set_wrapper_choice(os.environ.get('NANOMSG_PY_TEST_WRAPPER',
 from nanomsg import (
     PAIR,
     Socket,
-    LINGER,
+    SNDBUF,
     SOL_SOCKET
 )
 
 SOCKET_ADDRESS = os.environ.get('NANOMSG_PY_TEST_ADDRESS', "inproc://a")
-
-LINGER_DEFAULT_VALUE = 1000
 
 
 class TestGeneralSocketMethods(unittest.TestCase):
@@ -42,18 +40,13 @@ class TestGeneralSocketMethods(unittest.TestCase):
 
         self.assertFalse(self.socket.is_open())
 
-    def test_set_int_option(self):
+    def test_set_and_get_int_option(self):
         expected = 500
 
-        self.socket.set_int_option(SOL_SOCKET, LINGER, expected)
+        self.socket.set_int_option(SOL_SOCKET, SNDBUF, expected)
 
-        actual = self.socket.get_int_option(SOL_SOCKET, LINGER)
+        actual = self.socket.get_int_option(SOL_SOCKET, SNDBUF)
         self.assertEqual(expected, actual)
-
-    def test_get_int_option(self):
-        actual = self.socket.get_int_option(SOL_SOCKET, LINGER)
-
-        self.assertEqual(LINGER_DEFAULT_VALUE, actual)
 
 
 if __name__ == '__main__':
