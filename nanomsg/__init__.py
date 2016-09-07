@@ -91,6 +91,42 @@ def terminate_all():
     wrapper.nn_term()
 
 
+def poll(in_sockets, out_sockets, timeout=-1):
+    """
+    Poll a list of sockets
+    :param in_sockets: sockets for reading
+    :param out_sockets: sockets for writing
+    :param timeout: poll timeout in seconds, -1 is infinite wait
+    :return: tuple (read socket list, write socket list)
+    """
+    sockets = {}
+    # reverse map fd => socket
+    fd_sockets = {}
+    for s in in_sockets:
+        sockets[s.fd] = POLLIN
+        fd_sockets[s.fd] = s
+    for s in out_sockets:
+        modes = sockets.get(s.fd, 0)
+        sockets[s.fd] = modes | POLLOUT
+        fd_sockets[s.fd] = s
+
+    # convert to milliseconds or -1
+    if timeout >= 0:
+        timeout_ms = int(timeout*1000)
+    else:
+        timeout_ms = -1
+    res, sockets = wrapper.nn_poll(sockets, timeout_ms)
+    _nn_check_positive_rtn(res)
+    read_list, write_list = [], []
+    for fd, result in sockets.items():
+        if (result & POLLIN) != 0:
+            read_list.append(fd_sockets[fd])
+        if (result & POLLOUT) != 0:
+            write_list.append(fd_sockets[fd])
+
+    return read_list, write_list
+
+
 class Socket(object):
     """Class wrapping nanomsg socket.
 
