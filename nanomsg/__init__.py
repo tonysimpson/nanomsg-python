@@ -262,7 +262,7 @@ class Socket(object):
                        'milliseconds (0.001 seconds)')
     recv_buffer_size = property(_get_recv_buffer_size, _set_recv_buffer_size,
                                 doc='Receive buffer size in bytes')
-    send_buffer_size = property(_get_send_buffer_size, _set_send_timeout,
+    send_buffer_size = property(_get_send_buffer_size, _set_send_buffer_size,
                                 doc='Send buffer size in bytes')
     send_timeout = property(_get_send_timeout, _set_send_timeout,
                             doc='Send timeout in milliseconds (0.001 seconds)')
