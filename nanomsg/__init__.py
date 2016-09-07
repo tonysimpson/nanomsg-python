@@ -137,7 +137,7 @@ class Socket(object):
 
         def shutdown(self):
             self._fdocket._endpoints.remove(self)
-            _nn_check_positive_rtn(nn_shutdown(self._fdocket._s,
+            _nn_check_positive_rtn(wrapper.nn_shutdown(self._fdocket._fd,
                                                self._endpoint_id))
 
         def __repr__(self):
@@ -249,7 +249,7 @@ class Socket(object):
     def fd(self):
         """Socket file descripter.
 
-        Not this is not an OS file descripter (see .send_fd, .recv_fd).
+        Note this is not an OS file descripter (see .send_fd, .recv_fd).
         """
         return self._fd
 
