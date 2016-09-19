@@ -1,0 +1,61 @@
+# The template for this file was from https://packaging.python.org/appveyor/
+
+environment:
+  matrix:
+    # For Python versions available on Appveyor, see
+    # http://www.appveyor.com/docs/installed-software#python
+    - PYTHON: "C:\\Python27"
+      CMAKE_GENERATOR: "Visual Studio 9 2008"
+    - PYTHON: "C:\\Python34"
+      CMAKE_GENERATOR: "Visual Studio 10 2010"
+    - PYTHON: "C:\\Python35"
+      CMAKE_GENERATOR: "Visual Studio 14 2015"
+    - PYTHON: "C:\\Python34-x64"
+      CMAKE_GENERATOR: "Visual Studio 10 2010 Win64"
+      DISTUTILS_USE_SDK: "1"
+    - PYTHON: "C:\\Python35-x64"
+      CMAKE_GENERATOR: "Visual Studio 14 2015 Win64"
+
+install:
+  # We need wheel installed to build wheels
+  - "%PYTHON%\\python.exe -m pip install wheel"
+  # Visual Studio 9 2008 does not come with stdint.h, so we'll copy over a
+  # different version.  We only need to do it whenever we're building with
+  # 2008, but it doesn't hurt to copy it unconditionally.  The first copy is to
+  # build nanomsg, the second is to build the extension.
+  - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
+           "C:\\Program Files (x86)\\Microsoft Visual Studio 9.0\\VC\\include\\stdint.h"
+  - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
+           "C:\\Users\\appveyor\\AppData\\Local\\Programs\\Common\\Microsoft\\Visual C++ for Python\\9.0\\VC\include\\stdint.h"
+  - git clone https://github.com/nanomsg/nanomsg.git nanomsg-src
+  - pwd
+  - ps: pushd nanomsg-src
+  - git checkout 1.0.0
+  - ps: mkdir build
+  - ps: cd build
+  - cmake -DNN_STATIC_LIB=ON  -G"%CMAKE_GENERATOR%" ..
+  - cmake --build .
+  - cmake --build . --target install
+  - ps: cp Debug\nanomsg.lib ..\..
+  - ps: popd
+  - pwd
+
+build_script:
+  - "%PYTHON%\\python.exe setup.py install"
+
+test_script:
+  - "build.cmd %PYTHON%\\python.exe setup.py test"
+
+after_test:
+  # build the wheel.
+  # build.cmd sets up necessary variables for 64-bit builds
+  - "build.cmd %PYTHON%\\python.exe setup.py bdist_wheel"
+
+artifacts:
+  # bdist_wheel puts your built wheel in the dist directory
+  - path: dist\*
+
+#on_success:
+#  You can use this step to upload your artifacts to a public website.
+#  See Appveyor's documentation for more details. Or you can simply
+#  access your wheels from the Appveyor "artifacts" tab for your build.

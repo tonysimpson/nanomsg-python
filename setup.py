@@ -2,6 +2,7 @@ from __future__ import division, absolute_import, print_function,\
  unicode_literals
 
 import os
+import platform
 import sys
 try:
     from setuptools import setup
@@ -37,6 +38,18 @@ class skippable_build_ext(build_ext):
             print("=" * 79)
             print()
 
+libraries = [str('nanomsg')]
+# add additional necessary library/include path info if we're on Windows
+if sys.platform in ("win32", "cygwin"):
+    libraries.extend([str('ws2_32'), str('advapi32'), str('mswsock')])
+    # nanomsg installs to different directory based on architecture
+    arch = platform.architecture()[0]
+    if arch == "64bit":
+        include_dirs=[r'C:\Program Files\nanomsg\include',]
+    else:
+        include_dirs=[r'C:\Program Files (x86)\nanomsg\include',]
+else:
+    include_dirs = None
 try:
     import ctypes
     if sys.platform in ('win32', 'cygwin'):
@@ -46,18 +59,19 @@ try:
     else:
         _lib = ctypes.cdll.LoadLibrary('libnanoconfig.so')
 except OSError:
-    # Building without nanoconfig
-    cpy_extension = Extension(str('_nanomsg_cpy'),
-                        sources=[str('_nanomsg_cpy/wrapper.c')],
-                        libraries=[str('nanomsg')],
-                        )
+    # Building without nanoconfig; need to turn NN_STATIC_LIB on
+    define_macros = [('NN_STATIC_LIB','ON')]
 else:
     # Building with nanoconfig
-    cpy_extension = Extension(str('_nanomsg_cpy'),
-                        define_macros=[('WITH_NANOCONFIG', '1')],
-                        sources=[str('_nanomsg_cpy/wrapper.c')],
-                        libraries=[str('nanomsg'), str('nanoconfig')],
-                        )
+    libraries.append(str('nanoconfig'))
+    define_macros = [('WITH_NANOCONFIG', '1')]
+
+cpy_extension = Extension(str('_nanomsg_cpy'),
+                    define_macros=define_macros,
+                    sources=[str('_nanomsg_cpy/wrapper.c')],
+                    libraries=libraries,
+                    include_dirs=include_dirs,
+                    )
 install_requires = []
 
 try:
