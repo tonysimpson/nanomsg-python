@@ -13,7 +13,7 @@ except NameError:
 
 nanoconfig_started = False
 
-#Import contants into module with NN_ prefix stripped
+#Import constants into module with NN_ prefix stripped
 for name, value in wrapper.nn_symbols():
     if name.startswith('NN_'):
         name = name[3:]
@@ -177,7 +177,7 @@ class Socket(object):
                                                self._endpoint_id))
 
         def __repr__(self):
-            return '<%s socket %r, id %r, addresss %r>' % (
+            return '<%s socket %r, id %r, address %r>' % (
                 self.__class__.__name__,
                 self._fdocket,
                 self._endpoint_id,
@@ -406,9 +406,9 @@ class Socket(object):
             self.__class__.__name__,
             self.fd,
             [i.address for i in self.endpoints if type(i) is
-             Socket.BindEndpoint],
-            [i.address for i in self.endpoints if type(i) is
              Socket.ConnectEndpoint],
+            [i.address for i in self.endpoints if type(i) is
+             Socket.BindEndpoint],
         )
 
     def __del__(self):
