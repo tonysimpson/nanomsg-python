@@ -3,6 +3,7 @@ from __future__ import division, absolute_import, print_function,\
 
 import os
 import sys
+import subprocess
 try:
     from setuptools import setup
 except ImportError:
@@ -15,6 +16,16 @@ from distutils.command.build_ext import build_ext
 with open(os.path.join('nanomsg','version.py')) as f:
     exec(f.read())
 
+def pkgconfig(*packages, **kw):
+    flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
+    args = ('pkg-config', '--libs', '--cflags') + packages
+    output, _ = subprocess.Popen(args, stdout=subprocess.PIPE).communicate()
+    output = output.decode("ascii")
+    if "not found" in output:
+        return {} # probably forgot to set PKG_CONFIG_PATH
+    for token in output.split():
+        kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
+    return kw
 
 class skippable_build_ext(build_ext):
     def run(self):
@@ -48,8 +59,7 @@ try:
 except OSError:
     # Building without nanoconfig
     cpy_extension = Extension(str('_nanomsg_cpy'),
-                        sources=[str('_nanomsg_cpy/wrapper.c')],
-                        libraries=[str('nanomsg')],
+                        sources=[str('_nanomsg_cpy/wrapper.c')], **pkgconfig('libnanomsg')
                         )
 else:
     # Building with nanoconfig
