@@ -68,7 +68,7 @@ class TestPoll(unittest.TestCase):
                 timeout = .05
                 r, _ = poll([s1, s2], [], timeout)
                 end_time = time.time()
-                self.assertTrue(end_time-start_time-timeout < .010)
+                self.assertTrue(end_time-start_time-timeout < .030)
                 self.assertEqual(0, len(r), "No sockets to read")
 
 
