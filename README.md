@@ -1,8 +1,6 @@
 nanomsg-python
 ==============
 
-**This project is looking for a new maintainer see https://github.com/tonysimpson/nanomsg-python/issues/43**
-
 Python library for [nanomsg](http://nanomsg.org/) which does not compromise on
 usability or performance.
 
@@ -14,6 +12,14 @@ The following versions of Python are supported CPython 2.6+, 3.2+ and Pypy 2.1.0
 
 Bugs and change requests can be made
 [here](https://github.com/tonysimpson/nanomsg-python/issues).
+
+
+nanommsg library in /usr/local
+==============================
+
+
+If you're nanomsg is in /usr/local and your machine is not configured to find it there you can rename the usr_local_setup.cfg to setup.cfg to fix the problem.
+
 
 Example
 =======

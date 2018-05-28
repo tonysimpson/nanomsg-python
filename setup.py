@@ -1,41 +1,14 @@
-from __future__ import division, absolute_import, print_function,\
- unicode_literals
+from __future__ import division, absolute_import, print_function, unicode_literals
 
 import os
 import sys
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup, Extension
+from setuptools import setup
 from distutils.core import Extension
-from distutils.errors import DistutilsError
 from distutils.command.build_ext import build_ext
 
 
 with open(os.path.join('nanomsg','version.py')) as f:
     exec(f.read())
-
-
-class skippable_build_ext(build_ext):
-    def run(self):
-        try:
-            build_ext.run(self)
-        except Exception as e:
-            print()
-            print("=" * 79)
-            print("WARNING : CPython API extension could not be built.")
-            print()
-            print("Exception was : %r" % (e,))
-            print()
-            print(
-                "If you need the extensions (they may be faster than "
-                "alternative on some"
-            )
-            print(" platforms) check you have a compiler configured with all"
-                  " the necessary")
-            print(" headers and libraries.")
-            print("=" * 79)
-            print()
 
 try:
     import ctypes
@@ -71,7 +44,6 @@ setup(
     version=__version__,
     packages=[str('nanomsg'), str('_nanomsg_ctypes'), str('nanomsg_wrappers')],
     ext_modules=[cpy_extension],
-    cmdclass = {'build_ext': skippable_build_ext},
     install_requires=install_requires,
     description='Python library for nanomsg.',
     classifiers=[
