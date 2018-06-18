@@ -2,18 +2,19 @@ from __future__ import division, absolute_import, print_function,\
  unicode_literals
 
 import ctypes
+import os
 import platform
 import sys
 
 if sys.platform in ('win32', 'cygwin'):
     _functype = ctypes.WINFUNCTYPE
-    _lib = ctypes.windll.nanomsg
+    _lib = ctypes.windll.LoadLibrary(os.environ.get('NN_CTYPES_LIB_PATH', 'nanomsg'))
 elif sys.platform == 'darwin':
     _functype = ctypes.CFUNCTYPE
-    _lib = ctypes.cdll.LoadLibrary('libnanomsg.dylib')
+    _lib = ctypes.cdll.LoadLibrary(os.environ.get('NN_CTYPES_LIB_PATH', 'libnanomsg.dylib'))
 else:
     _functype = ctypes.CFUNCTYPE
-    _lib = ctypes.cdll.LoadLibrary('libnanomsg.so')
+    _lib = ctypes.cdll.LoadLibrary(os.environ.get('NN_CTYPES_LIB_PATH', 'libnanomsg.so'))
 
 
 def _c_func_wrapper_factory(cdecl_text):
@@ -272,11 +273,11 @@ nn_term.__doc__ = "notify all sockets about process termination"
 
 try:
     if sys.platform in ('win32', 'cygwin'):
-        _nclib = ctypes.windll.nanoconfig
+        _nclib = ctypes.windll.LoadLibrary(os.environ.get('NN_CTYPES_NCLIB_PATH', 'nanoconfig'))
     elif sys.platform == 'darwin':
-        _nclib = ctypes.cdll.LoadLibrary('libnanoconfig.dylib')
+        _nclib = ctypes.cdll.LoadLibrary(os.environ.get('NN_CTYPES_NCLIB_PATH', 'libnanoconfig.dylib'))
     else:
-        _nclib = ctypes.cdll.LoadLibrary('libnanoconfig.so')
+        _nclib = ctypes.cdll.LoadLibrary(os.environ.get('NN_CTYPES_NCLIB_PATH', 'libnanoconfig.so'))
 except OSError:
     pass # No nanoconfig, sorry
 else:
