@@ -273,6 +273,8 @@ nn_term.__doc__ = "notify all sockets about process termination"
 try:
     if sys.platform in ('win32', 'cygwin'):
         _nclib = ctypes.windll.nanoconfig
+    elif sys.platform == 'darwin':
+        _nclib = ctypes.cdll.LoadLibrary('libnanoconfig.dylib')
     else:
         _nclib = ctypes.cdll.LoadLibrary('libnanoconfig.so')
 except OSError:
