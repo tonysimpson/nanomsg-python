@@ -4,26 +4,26 @@ environment:
   matrix:
     # For Python versions available on Appveyor, see
     # http://www.appveyor.com/docs/installed-software#python
-    - PYTHON: "C:\\Python27"
-      CMAKE_GENERATOR: "Visual Studio 9 2008"
-    - PYTHON: "C:\\Python34"
-      CMAKE_GENERATOR: "Visual Studio 10 2010"
-    - PYTHON: "C:\\Python35"
-      CMAKE_GENERATOR: "Visual Studio 14 2015"
-    - PYTHON: "C:\\Python36"
-      CMAKE_GENERATOR: "Visual Studio 14 2015"
+#     - PYTHON: "C:\\Python27"
+#       CMAKE_GENERATOR: "Visual Studio 9 2008"
+#     - PYTHON: "C:\\Python34"
+#       CMAKE_GENERATOR: "Visual Studio 10 2010"
+#     - PYTHON: "C:\\Python35"
+#       CMAKE_GENERATOR: "Visual Studio 14 2015"
+#     - PYTHON: "C:\\Python36"
+#       CMAKE_GENERATOR: "Visual Studio 14 2015"
     - PYTHON: "C:\\Python27"
       CMAKE_GENERATOR: "Visual Studio 9 2008 Win64"
       ARCH: x64
       PYTHON_ARCH: 64
-    - PYTHON: "C:\\Python34-x64"
-      CMAKE_GENERATOR: "Visual Studio 10 2010 Win64"
-      ARCH: x64
-      PYTHON_ARCH: 64
-    - PYTHON: "C:\\Python35-x64"
-      CMAKE_GENERATOR: "Visual Studio 14 2015 Win64"
-    - PYTHON: "C:\\Python36-x64"
-      CMAKE_GENERATOR: "Visual Studio 14 2015 Win64"
+#     - PYTHON: "C:\\Python34-x64"
+#       CMAKE_GENERATOR: "Visual Studio 10 2010 Win64"
+#       ARCH: x64
+#       PYTHON_ARCH: 64
+#     - PYTHON: "C:\\Python35-x64"
+#       CMAKE_GENERATOR: "Visual Studio 14 2015 Win64"
+#     - PYTHON: "C:\\Python36-x64"
+#       CMAKE_GENERATOR: "Visual Studio 14 2015 Win64"
 
 install:
   # We need wheel installed to build wheels
