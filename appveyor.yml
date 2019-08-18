@@ -18,7 +18,7 @@ environment:
       Architecture: x64
       PYTHON_ARCH: "64"
       PATCH_VS2008: True
-      DISTUTILS_USE_SDK: 1
+#       DISTUTILS_USE_SDK: "1"
 #     - PYTHON: "C:\\Python34-x64"
 #       CMAKE_GENERATOR: "Visual Studio 10 2010 Win64"
 #       ARCH: x64
