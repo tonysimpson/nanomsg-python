@@ -59,7 +59,8 @@ install:
   - cmake -DNN_STATIC_LIB=ON  -G"%CMAKE_GENERATOR%" ..
   - cmake --build .
   - cmake --build . --target install
-  - ps: cp Debug\nanomsg.lib ..\..
+#   - ps: cp Debug\nanomsg.lib ..\..
+  - ps: cp Release\nanomsg.lib ..\..
   - ps: popd
   - pwd
 
