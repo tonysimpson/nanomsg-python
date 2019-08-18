@@ -16,6 +16,7 @@ environment:
       CMAKE_GENERATOR: "Visual Studio 9 2008 Win64"
       ARCH: x64
       PYTHON_ARCH: 64
+      PATCH_VS2008: True
 #     - PYTHON: "C:\\Python34-x64"
 #       CMAKE_GENERATOR: "Visual Studio 10 2010 Win64"
 #       ARCH: x64
@@ -34,13 +35,13 @@ install:
   # build nanomsg, the second is to build the extension.
   - ps: install-module pscx -scope CurrentUser
   - ps: >-
-    if ($env:PATCH_VS2008 -eq 'True') {
-        # http://scikit-ci-addons.readthedocs.io/en/latest/addons.html#patch-vs2008-py
-        C:\Python27\python -m pip install scikit-ci-addons
-        C:\Python27\python -m ci_addons appveyor/patch_vs2008
-        # http://help.appveyor.com/discussions/kb/38-visual-studio-2008-64-bit-builds
-        Copy-Item "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
-    }
+      if ($env:PATCH_VS2008 -eq 'True') {
+          # http://scikit-ci-addons.readthedocs.io/en/latest/addons.html#patch-vs2008-py
+          C:\Python27\python -m pip install scikit-ci-addons
+          C:\Python27\python -m ci_addons appveyor/patch_vs2008
+          # http://help.appveyor.com/discussions/kb/38-visual-studio-2008-64-bit-builds
+          Copy-Item "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
+      }
   - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
            "C:\\Program Files (x86)\\Microsoft Visual Studio 9.0\\VC\\include\\stdint.h"
   - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
