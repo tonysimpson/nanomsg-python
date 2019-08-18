@@ -32,6 +32,15 @@ install:
   # different version.  We only need to do it whenever we're building with
   # 2008, but it doesn't hurt to copy it unconditionally.  The first copy is to
   # build nanomsg, the second is to build the extension.
+  - ps: install-module pscx -scope CurrentUser
+  - ps: >-
+    if ($env:PATCH_VS2008 -eq 'True') {
+        # http://scikit-ci-addons.readthedocs.io/en/latest/addons.html#patch-vs2008-py
+        C:\Python27\python -m pip install scikit-ci-addons
+        C:\Python27\python -m ci_addons appveyor/patch_vs2008
+        # http://help.appveyor.com/discussions/kb/38-visual-studio-2008-64-bit-builds
+        Copy-Item "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
+    }
   - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
            "C:\\Program Files (x86)\\Microsoft Visual Studio 9.0\\VC\\include\\stdint.h"
   - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
@@ -50,6 +59,10 @@ install:
   - pwd
 
 build_script:
+  - ps: >-
+      $x64param = if ($env:Architecture -eq 'x64') { $true } else { $false }
+      $vs2008param = if ($env:Compiler -eq 'vs2008') { $true } else { $false }
+      .\build.ps1 -x64:$x64param -vs2008:$vs2008param
   - "%PYTHON%\\python.exe setup.py install"
 
 test_script:
