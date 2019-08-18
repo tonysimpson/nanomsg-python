@@ -60,7 +60,7 @@ install:
   - pwd
 
 build_script:
-  - "%PYTHON%\\python.exe setup.py install --include-dirs"
+  - "%PYTHON%\\python.exe setup.py install"
 
 test_script:
   - "build.cmd %PYTHON%\\python.exe setup.py test"
@@ -68,7 +68,7 @@ test_script:
 after_test:
   # build the wheel.
   # build.cmd sets up necessary variables for 64-bit builds
-  - "build.cmd %PYTHON%\\python.exe setup.py bdist_wheel --include-dirs"
+  - "build.cmd %PYTHON%\\python.exe setup.py bdist_wheel"
 
 artifacts:
   # bdist_wheel puts your built wheel in the dist directory
