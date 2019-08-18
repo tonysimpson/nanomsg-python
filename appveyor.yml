@@ -47,7 +47,7 @@ install:
           # http://help.appveyor.com/discussions/kb/38-visual-studio-2008-64-bit-builds
           Copy-Item "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
       }
-  -ps: Import-VisualStudioVars -VisualStudioVersion 90 -Architecture amd64
+  - ps: Import-VisualStudioVars -VisualStudioVersion 90 -Architecture amd64
   - git clone https://github.com/nanomsg/nanomsg.git nanomsg-src
   - pwd
   - ps: pushd nanomsg-src
