@@ -1,7 +1,7 @@
 # The template for this file was from https://packaging.python.org/appveyor/
 environment:
   global:
-    CFLAGS: /MDd
+    CXXFLAGS: /MD
   matrix:
     # For Python versions available on Appveyor, see
     # http://www.appveyor.com/docs/installed-software#python
