@@ -33,7 +33,7 @@ install:
   # different version.  We only need to do it whenever we're building with
   # 2008, but it doesn't hurt to copy it unconditionally.  The first copy is to
   # build nanomsg, the second is to build the extension.
-  - ps: install-module pscx -scope CurrentUser
+#   - ps: install-module pscx -scope CurrentUser
   - ps: >-
       if ($env:PATCH_VS2008 -eq 'True') {
           # http://scikit-ci-addons.readthedocs.io/en/latest/addons.html#patch-vs2008-py
