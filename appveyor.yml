@@ -14,10 +14,10 @@ environment:
 #       CMAKE_GENERATOR: "Visual Studio 14 2015"
     - PYTHON: "C:\\Python27"
       CMAKE_GENERATOR: "Visual Studio 9 2008 Win64"
-      ARCH: x64
+      Compiler: vs2008
+      Architecture: x64
       PYTHON_ARCH: 64
       PATCH_VS2008: True
-      DISTUTILS_USE_SDK: 1
 #     - PYTHON: "C:\\Python34-x64"
 #       CMAKE_GENERATOR: "Visual Studio 10 2010 Win64"
 #       ARCH: x64
@@ -35,6 +35,10 @@ install:
   # 2008, but it doesn't hurt to copy it unconditionally.  The first copy is to
   # build nanomsg, the second is to build the extension.
 #   - ps: install-module pscx -scope CurrentUser
+  - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
+           "C:\\Program Files (x86)\\Microsoft Visual Studio 9.0\\VC\\include\\stdint.h"
+  - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
+           "C:\\Users\\appveyor\\AppData\\Local\\Programs\\Common\\Microsoft\\Visual C++ for Python\\9.0\\VC\include\\stdint.h"
   - ps: >-
       if ($env:PATCH_VS2008 -eq 'True') {
           # http://scikit-ci-addons.readthedocs.io/en/latest/addons.html#patch-vs2008-py
@@ -43,10 +47,7 @@ install:
           # http://help.appveyor.com/discussions/kb/38-visual-studio-2008-64-bit-builds
           Copy-Item "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\vcvars64.bat" "C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\bin\amd64\vcvarsamd64.bat"
       }
-  - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
-           "C:\\Program Files (x86)\\Microsoft Visual Studio 9.0\\VC\\include\\stdint.h"
-  - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
-           "C:\\Users\\appveyor\\AppData\\Local\\Programs\\Common\\Microsoft\\Visual C++ for Python\\9.0\\VC\include\\stdint.h"
+  -ps: Import-VisualStudioVars -VisualStudioVersion 90 -Architecture amd64
   - git clone https://github.com/nanomsg/nanomsg.git nanomsg-src
   - pwd
   - ps: pushd nanomsg-src
