@@ -59,11 +59,11 @@ install:
   - ps: popd
   - pwd
 
-build_script:
-  - "%PYTHON%\\python.exe setup.py install"
+# build_script:
+#   - "%PYTHON%\\python.exe setup.py install"
 
-test_script:
-  - "build.cmd %PYTHON%\\python.exe setup.py test"
+# test_script:
+#   - "build.cmd %PYTHON%\\python.exe setup.py test"
 
 after_test:
   # build the wheel.
