@@ -64,6 +64,7 @@ install:
   - pwd
 
 build_script:
+  - "%PYTHON%\\python.exe -c 'import sys; print(sys.version)'"
   - "%PYTHON%\\python.exe setup.py install"
 
 test_script:
