@@ -1,10 +1,9 @@
 language: python
 python:
-  - "3.2"
-  - "3.3"
-  - "3.4"
   - "2.7"
-  - "2.6"
+  - "3.5"
+  - "3.6"
+  - "3.7"
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
 # Build steps taken from
@@ -12,14 +11,14 @@ python:
 install:
   - git clone --quiet --depth=100 "https://github.com/nanomsg/nanomsg.git" ~/builds/nanomsg
       && pushd ~/builds/nanomsg
-      && mkdir build
-      && cd build
-      && cmake ..
-      && cmake --build .
-      && ctest -C Debug .
-      && sudo cmake --build . --target install
-      && sudo ldconfig
-      && popd
+  - export TRAVIS_TAG=$(cat .version)
+  - git checkout -b "${TRAVIS_TAG}"
+  - mkdir build && cd build
+  - cmake ..
+  - cmake --build .
+  - ctest -C Debug .
+  - sudo cmake --build . --target install
+  - sudo ldconfig && popd
 
 # command to run tests, e.g. python setup.py test
 script: LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib python setup.py test
