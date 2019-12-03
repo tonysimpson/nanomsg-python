@@ -10,24 +10,14 @@ python:
 before_install:
   - sudo apt-get -qq update
   - sudo apt-get install -y software-properties-common
-  - sudo add-apt-repository -y -u ppa:ubuntu-toolchain-r/test
+  - sudo add-apt-repository -y ppa:ubuntu-toolchain-r/test
+  - sudo add-apt-repository -y ppa:nerdboy/embedded
   - sudo apt-get -qq update
-  - sudo apt-get install -y --allow-unauthenticated build-essential cmake
+  - sudo apt-get install -y --allow-unauthenticated build-essential
 
 # command to install dependencies, e.g. pip install -r requirements.txt --use-mirrors
-# Build steps taken from
-# https://github.com/nanomsg/nanomsg#build-it-with-cmake
 install:
-  - git clone --quiet --depth=100 "https://github.com/nanomsg/nanomsg.git" ~/builds/nanomsg
-      && pushd ~/builds/nanomsg
-  - export TRAVIS_TAG=$(cat .version)
-  - git checkout -b "${TRAVIS_TAG}"
-  - mkdir build && cd build
-  - cmake ..
-  - cmake --build .
-  - ctest -C Debug .
-  - sudo cmake --build . --target install
-  - sudo ldconfig && popd
+  - sudo apt-get install libnanomsg-dev
 
 # command to run tests, e.g. python setup.py test
 script: LD_LIBRARY_PATH=/lib:/usr/lib:/usr/local/lib python setup.py test
