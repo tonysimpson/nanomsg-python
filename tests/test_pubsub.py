@@ -30,7 +30,7 @@ class TestPubSubSockets(unittest.TestCase):
 
                 actual = s2.recv()
 
-                self.assertEquals(expected, actual)
+                self.assertEqual(expected, actual)
 
 if __name__ == '__main__':
     unittest.main()
