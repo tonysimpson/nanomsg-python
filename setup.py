@@ -8,8 +8,11 @@ from distutils.core import Extension
 from distutils.command.build_ext import build_ext
 
 
-with open(os.path.join('nanomsg','version.py')) as f:
-    exec(f.read())
+__version__ = '1.0.2'
+
+FPND_DOWNLOAD_URL = (
+    'https://github.com/freepn/nanomsg-python/tarball/' + __version__
+)
 
 
 libraries = [str('nanomsg')]
