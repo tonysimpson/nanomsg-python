@@ -382,7 +382,7 @@ class Socket(object):
         _nn_check_positive_rtn(rtn)
         if length != size:
             raise NanoMsgError(('Returned option size (%r) should be the same'
-                                ' as size of int (%r)') % (rtn, size))
+                                ' as size of int (%r)') % (length, size))
         return Socket._INT_PACKER.unpack_from(buffer(buf))[0]
 
     def get_string_option(self, level, option, max_len=16*1024):
