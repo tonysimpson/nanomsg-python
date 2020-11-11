@@ -1,6 +1,8 @@
 nanomsg-python
 ==============
 
+![GitHub CI Workflow Status](https://img.shields.io/github/workflow/status/freepn/nanomsg-python/ci)
+
 Python library for [nanomsg](http://nanomsg.org/) which does not compromise on
 usability or performance.
 
