@@ -39,9 +39,7 @@ init:
 ## After repo cloning
 install:
 - cmd: >-
-    cd c:\projects
     vcpkg install nanomsg
-    cd ..
 
 build: false
 
