@@ -1,7 +1,11 @@
 # What Python version is installed where:
 # http://www.appveyor.com/docs/installed-software#python
 
+image:
+  - Visual Studio 2019
+
 clone_folder: c:\projects\nanomsg-python
+
 environment:
   global:
     PYTHONIOENCODING: utf-8
