@@ -1,66 +1,56 @@
-# The template for this file was from https://packaging.python.org/appveyor/
+# What Python version is installed where:
+# http://www.appveyor.com/docs/installed-software#python
 
+clone_folder: c:\projects\nanomsg-python
 environment:
+  global:
+    PYTHONIOENCODING: utf-8
   matrix:
-    # For Python versions available on Appveyor, see
-    # http://www.appveyor.com/docs/installed-software#python
-    - PYTHON: "C:\\Python27"
-      CMAKE_GENERATOR: "Visual Studio 9 2008"
-    - PYTHON: "C:\\Python34"
-      CMAKE_GENERATOR: "Visual Studio 10 2010"
-    - PYTHON: "C:\\Python35"
-      CMAKE_GENERATOR: "Visual Studio 14 2015"
     - PYTHON: "C:\\Python36"
-      CMAKE_GENERATOR: "Visual Studio 14 2015"
-    - PYTHON: "C:\\Python27"
-      CMAKE_GENERATOR: "Visual Studio 9 2008 Win64"  
-    - PYTHON: "C:\\Python34-x64"
-      CMAKE_GENERATOR: "Visual Studio 10 2010 Win64"
-    - PYTHON: "C:\\Python35-x64"
-      CMAKE_GENERATOR: "Visual Studio 14 2015 Win64"
+      TOX_ENV: "py36"
     - PYTHON: "C:\\Python36-x64"
-      CMAKE_GENERATOR: "Visual Studio 14 2015 Win64"
+      TOX_ENV: "py36"
+    - PYTHON: "C:\\Python37"
+      TOX_ENV: "py37"
+    - PYTHON: "C:\\Python37-x64"
+      TOX_ENV: "py37"
+    - PYTHON: "C:\\Python38"
+      TOX_ENV: "py38"
+    - PYTHON: "C:\\Python38-x64"
+      TOX_ENV: "py38"
+    - PYTHON: "C:\\Python39"
+      TOX_ENV: "py39"
+    - PYTHON: "C:\\Python39-x64"
+      TOX_ENV: "py39"
 
+## Before repo cloning
+init:
+  ## without this, temporary directory could be created in current dir
+  ## which will make some tests fail.
+  - mkdir C:\TMP
+  - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+  - set TOX_TESTENV_PASSENV=DISTUTILS_USE_SDK MSSdk INCLUDE LIB
+  - python -V
+
+## After repo cloning
 install:
-  # We need wheel installed to build wheels
-  - "%PYTHON%\\python.exe -m pip install wheel"
-  # Visual Studio 9 2008 does not come with stdint.h, so we'll copy over a
-  # different version.  We only need to do it whenever we're building with
-  # 2008, but it doesn't hurt to copy it unconditionally.  The first copy is to
-  # build nanomsg, the second is to build the extension.
-  - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
-           "C:\\Program Files (x86)\\Microsoft Visual Studio 9.0\\VC\\include\\stdint.h"
-  - ps: cp "C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\include\\stdint.h"
-           "C:\\Users\\appveyor\\AppData\\Local\\Programs\\Common\\Microsoft\\Visual C++ for Python\\9.0\\VC\include\\stdint.h"
-  - git clone https://github.com/nanomsg/nanomsg.git nanomsg-src
-  - pwd
-  - ps: pushd nanomsg-src
-  - git checkout 1.0.0
-  - ps: mkdir build
-  - ps: cd build
-  - cmake -DNN_STATIC_LIB=ON  -G"%CMAKE_GENERATOR%" ..
-  - cmake --build .
-  - cmake --build . --target install
-  - ps: cp Debug\nanomsg.lib ..\..
-  - ps: popd
-  - pwd
+- cmd: >-
+    cd c:\projects
+    vcpkg install nanomsg
+    cd ..
 
-build_script:
-  - "%PYTHON%\\python.exe setup.py install"
+build: false
 
+## Before tests
+before_test:
+  - python -m pip install --upgrade pip wheel
+  - pip install tox virtualenv codecov
+
+## Custom test script
 test_script:
-  - "build.cmd %PYTHON%\\python.exe setup.py test"
 
-after_test:
-  # build the wheel.
-  # build.cmd sets up necessary variables for 64-bit builds
-  - "build.cmd %PYTHON%\\python.exe setup.py bdist_wheel"
+  ## real tests
+  - "%PYTHON%/Scripts/tox -e %TOX_ENV%"
 
-artifacts:
-  # bdist_wheel puts your built wheel in the dist directory
-  - path: dist\*
-
-#on_success:
-#  You can use this step to upload your artifacts to a public website.
-#  See Appveyor's documentation for more details. Or you can simply
-#  access your wheels from the Appveyor "artifacts" tab for your build.
+  ## installable
+  - pip install .
