@@ -18,7 +18,7 @@ NANOMSG_DOWNLOAD_URL = (
 
 libraries = [str('nanomsg')]
 # add additional necessary library/include path info if we're on Windows
-if sys.platform in ("win32", "cygwin"):
+if sys.platform in ("win32", "cygwin") or platform.system() == "Windows":
     libraries.extend([str('ws2_32'), str('advapi32'), str('mswsock')])
     # nanomsg installs to different directory based on architecture
     arch = platform.architecture()[0]
@@ -31,7 +31,7 @@ else:
 
 try:
     import ctypes
-    if sys.platform in ('win32', 'cygwin'):
+    if platform.system() == "Windows":
         _lib = ctypes.windll.nanoconfig
     elif sys.platform == 'darwin':
         _lib = ctypes.cdll.LoadLibrary('libnanoconfig.dylib')
