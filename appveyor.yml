@@ -4,26 +4,16 @@
 image:
   - Visual Studio 2019
 
-clone_folder: c:\projects\nanomsg-python
-
 environment:
   global:
     PYTHONIOENCODING: utf-8
   matrix:
-    - PYTHON: "C:\\Python36"
-      TOX_ENV: "py36"
     - PYTHON: "C:\\Python36-x64"
       TOX_ENV: "py36"
-    - PYTHON: "C:\\Python37"
-      TOX_ENV: "py37"
     - PYTHON: "C:\\Python37-x64"
       TOX_ENV: "py37"
-    - PYTHON: "C:\\Python38"
-      TOX_ENV: "py38"
     - PYTHON: "C:\\Python38-x64"
       TOX_ENV: "py38"
-    - PYTHON: "C:\\Python39"
-      TOX_ENV: "py39"
     - PYTHON: "C:\\Python39-x64"
       TOX_ENV: "py39"
 
@@ -38,8 +28,10 @@ init:
 
 ## After repo cloning
 install:
-- cmd: >-
-    vcpkg install nanomsg
+  - cmd: cd c:\tools\vcpkg
+  - cmd: vcpkg integrate install
+  - cmd: vcpkg install nanomsg:x64-windows
+  - cmd: cd "%APPVEYOR_BUILD_FOLDER%"
 
 build: false
 
