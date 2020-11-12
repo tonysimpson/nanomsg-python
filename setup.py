@@ -8,14 +8,6 @@ from distutils.core import Extension
 from distutils.command.build_ext import build_ext
 
 
-NANOMSG_VERSION = '1.0.2-1'
-REL_TAG = NANOMSG_VERSION.replace('-', 'p')
-
-NANOMSG_DOWNLOAD_URL = (
-    'https://github.com/freepn/nanomsg-python/tarball/' + REL_TAG
-)
-
-
 libraries = [str('nanomsg')]
 # add additional necessary library/include path info if we're on Windows
 if sys.platform in ("win32", "cygwin") or platform.system() == "Windows":
@@ -61,7 +53,6 @@ except ImportError:
 
 setup(
     name='nanomsg',
-    version=NANOMSG_VERSION,
     packages=[str('nanomsg'), str('_nanomsg_ctypes'), str('nanomsg_wrappers')],
     ext_modules=[cpy_extension],
     install_requires=install_requires,
@@ -82,8 +73,8 @@ setup(
     author='Tony Simpson',
     author_email='agjasimpson@gmail.com',
     url='https://github.com/tonysimpson/nanomsg-python',
-    download_url=NANOMSG_DOWNLOAD_URL,
     keywords=['nanomsg', 'driver'],
     license='MIT',
     test_suite="tests",
+    use_scm_version=True,
 )
