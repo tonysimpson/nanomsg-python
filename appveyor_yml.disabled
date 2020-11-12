@@ -1,0 +1,50 @@
+# What Python version is installed where:
+# http://www.appveyor.com/docs/installed-software#python
+
+image:
+  - Visual Studio 2019
+
+environment:
+  global:
+    PYTHONIOENCODING: utf-8
+  matrix:
+    - PYTHON: "C:\\Python36-x64"
+      TOX_ENV: "py36"
+    - PYTHON: "C:\\Python37-x64"
+      TOX_ENV: "py37"
+    - PYTHON: "C:\\Python38-x64"
+      TOX_ENV: "py38"
+    - PYTHON: "C:\\Python39-x64"
+      TOX_ENV: "py39"
+
+## Before repo cloning
+init:
+  ## without this, temporary directory could be created in current dir
+  ## which will make some tests fail.
+  - mkdir C:\TMP
+  - set PATH=%PYTHON%;%PYTHON%\Scripts;%PATH%
+  - set TOX_TESTENV_PASSENV=DISTUTILS_USE_SDK MSSdk INCLUDE LIB
+  - python -V
+
+## After repo cloning
+install:
+  - cmd: cd c:\tools\vcpkg
+  - cmd: vcpkg integrate install
+  - cmd: vcpkg install nanomsg:x64-windows
+  - cmd: cd "%APPVEYOR_BUILD_FOLDER%"
+
+build: false
+
+## Before tests
+before_test:
+  - python -m pip install --upgrade pip wheel
+  - pip install tox virtualenv codecov
+
+## Custom test script
+test_script:
+
+  ## real tests
+  - "%PYTHON%/Scripts/tox -e %TOX_ENV%"
+
+  ## installable
+  - pip install .
