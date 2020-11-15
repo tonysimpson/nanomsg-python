@@ -8,6 +8,10 @@ from distutils.core import Extension
 from distutils.command.build_ext import build_ext
 
 
+with open(os.path.join('nanomsg','version.py')) as f:
+    exec(f.read())
+
+
 libraries = [str('nanomsg')]
 # add additional necessary library/include path info if we're on Windows
 if sys.platform in ("win32", "cygwin") or platform.system() == "Windows":
@@ -53,6 +57,7 @@ except ImportError:
 
 setup(
     name='nanomsg',
+    version=__version__,
     packages=[str('nanomsg'), str('_nanomsg_ctypes'), str('nanomsg_wrappers')],
     ext_modules=[cpy_extension],
     install_requires=install_requires,
@@ -76,5 +81,4 @@ setup(
     keywords=['nanomsg', 'driver'],
     license='MIT',
     test_suite="tests",
-    use_scm_version=True,
 )
