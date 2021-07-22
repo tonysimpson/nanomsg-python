@@ -256,8 +256,8 @@ class Socket(object):
     def _set_reconnect_interval_max(self, value):
         return self.set_int_option(SOL_SOCKET, RECONNECT_IVL_MAX, value)
 
-    send_fd = property(_get_send_fd, doc='Send file descripter')
-    recv_fd = property(_get_recv_fd, doc='Receive file descripter')
+    send_fd = property(_get_send_fd, doc='Send file descriptor')
+    recv_fd = property(_get_recv_fd, doc='Receive file descriptor')
     linger  = property(_get_linger, _set_linger, doc='Socket linger in '
                        'milliseconds (0.001 seconds)')
     recv_buffer_size = property(_get_recv_buffer_size, _set_recv_buffer_size,
@@ -283,9 +283,9 @@ class Socket(object):
 
     @property
     def fd(self):
-        """Socket file descripter.
+        """Socket file descriptor.
 
-        Note this is not an OS file descripter (see .send_fd, .recv_fd).
+        Note this is not an OS file descriptor (see .send_fd, .recv_fd).
         """
         return self._fd
 

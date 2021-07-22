@@ -166,7 +166,7 @@ def nn_getsockopt(socket, level, option, value):
     option - option
     value - a writable byte buffer (e.g. a bytearray) which the option value
     will be copied to
-    returns - number of bytes copied or on error nunber < 0
+    returns - number of bytes copied or on error number < 0
 
     """
     if memoryview(value).readonly:
