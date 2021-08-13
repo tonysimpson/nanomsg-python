@@ -6,6 +6,8 @@ import warnings
 
 from . import wrapper
 
+__all__ = ['wrapper', 'NanoMsgError', 'NanoMsgAPIError', 'Device', 'Socket']
+
 try:
     buffer
 except NameError:
@@ -18,6 +20,7 @@ for name, value in wrapper.nn_symbols():
     if name.startswith('NN_'):
         name = name[3:]
     globals()[name] = value
+    __all__.append(name)
 
 
 if hasattr(wrapper, 'create_writable_buffer'):
