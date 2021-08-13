@@ -159,7 +159,7 @@ class Socket(object):
 
     """
 
-    _INT_PACKER = _Struct(str('l'))
+    _INT_PACKER = _Struct(str('i'))
 
     class _Endpoint(object):
         def __init__(self, socket, endpoint_id, address):
