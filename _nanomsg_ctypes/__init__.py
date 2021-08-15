@@ -1,8 +1,6 @@
-from __future__ import division, absolute_import, print_function,\
- unicode_literals
+from __future__ import division, absolute_import, print_function, unicode_literals
 
 import ctypes
-import platform
 import sys
 
 if sys.platform in ('win32', 'cygwin'):
@@ -19,7 +17,7 @@ else:
 def _c_func_wrapper_factory(cdecl_text):
     def move_pointer_and_strip(type_def, name):
         if '*' in name:
-            type_def += ' ' + name[:name.rindex('*')+1]
+            type_def += ' ' + name[:name.rindex('*') + 1]
             name = name.rsplit('*', 1)[1]
         return type_def.strip(), name.strip()
 
@@ -31,35 +29,34 @@ def _c_func_wrapper_factory(cdecl_text):
             'int': ctypes.c_int,
             'int *': ctypes.POINTER(ctypes.c_int),
             'void *': ctypes.c_void_p,
-            'size_t':  ctypes.c_size_t,
-            'size_t *':  ctypes.POINTER(ctypes.c_size_t),
+            'size_t': ctypes.c_size_t,
+            'size_t *': ctypes.POINTER(ctypes.c_size_t),
             'struct nn_msghdr *': ctypes.c_void_p,
             'struct nn_pollfd *': ctypes.c_void_p,
         }
-        type_def_without_const = type_def.replace('const ','')
+        type_def_without_const = type_def.replace('const ', '')
         if type_def_without_const in types:
             return types[type_def_without_const]
-        elif (type_def_without_const.endswith('*') and
-                type_def_without_const[:-1] in types):
+        elif (type_def_without_const.endswith('*') and type_def_without_const[:-1] in types):
             return ctypes.POINTER(types[type_def_without_const[:-1]])
         else:
             raise KeyError(type_def)
 
-        return types[type_def.replace('const ','')]
+        return types[type_def.replace('const ', '')]
 
-    a, b = [i.strip() for i in cdecl_text.split('(',1)]
-    params, _ = b.rsplit(')',1)
+    a, b = [i.strip() for i in cdecl_text.split('(', 1)]
+    params, dummy = b.rsplit(')', 1)
     rtn_type, name = move_pointer_and_strip(*a.rsplit(' ', 1))
     param_spec = []
     for param in params.split(','):
         if param != 'void':
             param_spec.append(move_pointer_and_strip(*param.rsplit(' ', 1)))
-    func = _functype(type_lookup(rtn_type),
-                     *[type_lookup(type_def) for type_def, _ in param_spec])(
-                        (name, _lib),
-                        tuple((2 if '**' in type_def else 1, name)
-                              for type_def, name in param_spec)
-                    )
+    func = (
+        _functype(type_lookup(rtn_type),
+                  *[type_lookup(type_def) for type_def, _ in param_spec])
+        ((name, _lib), tuple((2 if '**' in type_def else 1, name)
+                             for type_def, name in param_spec)))
+
     func.__name__ = name
     return func
 
@@ -136,7 +133,7 @@ def create_writable_buffer(size):
 
     This is the ctypes implementation.
     """
-    return (ctypes.c_ubyte*size)()
+    return (ctypes.c_ubyte * size)()
 
 
 def nn_setsockopt(socket, level, option, value):
@@ -188,7 +185,7 @@ def nn_send(socket, msg, flags):
 
 def _create_message(address, length):
     class Message(ctypes.Union):
-        _fields_ = [('_buf', ctypes.c_ubyte*length)]
+        _fields_ = [('_buf', ctypes.c_ubyte * length)]
         _len = length
         _address = address
 
@@ -237,7 +234,7 @@ def nn_poll(fds, timeout=-1):
         s.revents = 0
         polls.append(s)
 
-    poll_array = (PollFds*len(fds))(*polls)
+    poll_array = (PollFds * len(fds))(*polls)
     res = _nn_poll(poll_array, len(fds), int(timeout))
     if res <= 0:
         return res, {}
@@ -276,7 +273,7 @@ try:
     else:
         _nclib = ctypes.cdll.LoadLibrary('libnanoconfig.so')
 except OSError:
-    pass # No nanoconfig, sorry
+    pass  # No nanoconfig, sorry
 else:
     # int nc_configure (int s, const char *addr)
     nc_configure = _functype(ctypes.c_int, ctypes.c_int, ctypes.c_char_p)(

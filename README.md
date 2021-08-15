@@ -1,6 +1,10 @@
 nanomsg-python
 ==============
 
+![GitHub CI Workflow Status](https://img.shields.io/github/workflow/status/freepn/nanomsg-python/ci)
+
+This fork of nanomsg-python is currently tested on Python 2.7 and Python 3.6+ on Linux, Darwin, and Windows (the latter two somewhat theoretical).
+
 Python library for [nanomsg](http://nanomsg.org/) which does not compromise on
 usability or performance.
 

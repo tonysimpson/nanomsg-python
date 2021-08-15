@@ -14,7 +14,7 @@ with open(os.path.join('nanomsg','version.py')) as f:
 
 libraries = [str('nanomsg')]
 # add additional necessary library/include path info if we're on Windows
-if sys.platform in ("win32", "cygwin"):
+if sys.platform in ("win32", "cygwin") or platform.system() == "Windows":
     libraries.extend([str('ws2_32'), str('advapi32'), str('mswsock')])
     # nanomsg installs to different directory based on architecture
     arch = platform.architecture()[0]
@@ -27,7 +27,7 @@ else:
 
 try:
     import ctypes
-    if sys.platform in ('win32', 'cygwin'):
+    if platform.system() == "Windows":
         _lib = ctypes.windll.nanoconfig
     elif sys.platform == 'darwin':
         _lib = ctypes.cdll.LoadLibrary('libnanoconfig.dylib')
@@ -63,15 +63,17 @@ setup(
     install_requires=install_requires,
     description='Python library for nanomsg.',
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Programming Language :: Python",
         "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.2",
-        "Programming Language :: Python :: 3.3",
+        "Programming Language :: Python :: 3.5",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
     author='Tony Simpson',
     author_email='agjasimpson@gmail.com',

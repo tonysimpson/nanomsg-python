@@ -7,9 +7,11 @@ import warnings
 
 _choice = None
 
+
 def set_wrapper_choice(name):
     global _choice
     _choice = name
+
 
 def load_wrapper():
     if _choice is not None:
@@ -22,6 +24,7 @@ def load_wrapper():
                        "%s, performance may be affected!") % (default,))
     return importlib.import_module('_nanomsg_ctypes')
 
+
 def get_default_for_platform():
     if python_implementation() == 'CPython':
         return 'cpy'
@@ -30,5 +33,5 @@ def get_default_for_platform():
 
 
 def list_wrappers():
-    return [module_name.split('_',2)[-1] for _, module_name, _ in
-     pkgutil.iter_modules() if module_name.startswith('_nanomsg_')]
+    return [module_name.split('_', 2)[-1] for _, module_name, _ in
+            pkgutil.iter_modules() if module_name.startswith('_nanomsg_')]
