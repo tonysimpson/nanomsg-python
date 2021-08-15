@@ -41,6 +41,22 @@ else:
     libraries.append(str('nanoconfig'))
     define_macros = [('WITH_NANOCONFIG', '1')]
 
+class custom_build_ext(build_ext):
+    """
+    Add appropriate rpath linker flags (necessary on mac)
+    """
+    def finalize_options(self):
+        super().finalize_options()
+        # Special treatment of rpath in case of OSX, to work around python
+        # distutils bug 36353. This constructs proper rpath arguments for clang.
+        # See https://bugs.python.org/issue36353
+        # Workaround from https://github.com/python/cpython/pull/12418
+        if sys.platform[:6] == "darwin":
+            for path in self.rpath:
+                for ext in self.extensions:
+                    ext.extra_link_args.append("-Wl,-rpath," + path)
+            self.rpath[:] = []
+
 cpy_extension = Extension(str('_nanomsg_cpy'),
                     define_macros=define_macros,
                     sources=[str('_nanomsg_cpy/wrapper.c')],
@@ -56,6 +72,9 @@ except ImportError:
 
 
 setup(
+    cmdclass = {
+        'build_ext': custom_build_ext
+    },
     name='nanomsg',
     version=__version__,
     packages=[str('nanomsg'), str('_nanomsg_ctypes'), str('nanomsg_wrappers')],
